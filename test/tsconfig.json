@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "commonjs",
+        "declaration": true,
+        "sourceMap": true,
+        "jsx": "react",
+
+        "outDir": "../node_modules/@ff/test/client",
+        "baseUrl": ".",
+        "paths": {
+            "@ff/client/*": [ "../source/*" ]
+        }
+    },
+    "references": [
+        {
+            "path": "../source"
+        }
+    ]
+}
