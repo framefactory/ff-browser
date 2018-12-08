@@ -5,9 +5,15 @@
  * License: MIT
  */
 
-export type ManipPointerEventType = "down" | "move" | "up";
-export type ManipPointerEventSource = "mouse" | "pen" | "touch";
-export type ManipTriggerEventType = "wheel" | "dblclick" | "contextmenu";
+export enum EManipPointerEventType { Down, Hover, Move, Up }
+export enum EManipPointerEventSource { Mouse, Pen, Touch }
+export enum EManipTriggerEventType { Wheel, DblClick, ContextMenu }
+
+const _pointerTypeToSource = {
+    "mouse": EManipPointerEventSource.Mouse,
+    "pen": EManipPointerEventSource.Pen,
+    "touch": EManipPointerEventSource.Touch
+};
 
 export interface IPointerPosition
 {
@@ -20,6 +26,8 @@ export interface IManipBaseEvent
 {
     centerX: number;
     centerY: number;
+    localX: number;
+    localY: number;
 
     shiftKey: boolean;
     ctrlKey: boolean;
@@ -30,8 +38,8 @@ export interface IManipBaseEvent
 export interface IManipPointerEvent extends IManipBaseEvent
 {
     originalEvent: PointerEvent;
-    type: ManipPointerEventType;
-    source: ManipPointerEventSource;
+    type: EManipPointerEventType;
+    source: EManipPointerEventSource;
 
     isPrimary: boolean;
     activePositions: IPointerPosition[];
@@ -44,15 +52,20 @@ export interface IManipPointerEvent extends IManipBaseEvent
 export interface IManipTriggerEvent extends IManipBaseEvent
 {
     originalEvent: Event;
-    type: ManipTriggerEventType;
+    type: EManipTriggerEventType;
 
     wheel: number;
 }
 
-export default class ManipTarget
+export interface IManip
 {
     onPointer: (event: IManipPointerEvent) => boolean;
     onTrigger: (event: IManipTriggerEvent) => boolean;
+}
+
+export default class ManipTarget
+{
+    next: IManip;
 
     protected activePositions: IPointerPosition[];
     protected activeType: string;
@@ -69,6 +82,7 @@ export default class ManipTarget
         this.onContextMenu = this.onContextMenu.bind(this);
         this.onWheel = this.onWheel.bind(this);
 
+        this.next = null;
         this.activePositions = [];
         this.activeType = "";
         this.centerX = 0;
@@ -91,7 +105,7 @@ export default class ManipTarget
 
         (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
 
-        const manipEvent = this.createManipPointerEvent(event, "down");
+        const manipEvent = this.createManipPointerEvent(event, EManipPointerEventType.Down);
 
         if (this.sendPointerEvent(manipEvent)) {
             event.stopPropagation();
@@ -111,7 +125,8 @@ export default class ManipTarget
             }
         }
 
-        const manipEvent = this.createManipPointerEvent(event, "move");
+        const eventType = activePositions.length ? EManipPointerEventType.Move : EManipPointerEventType.Hover;
+        const manipEvent = this.createManipPointerEvent(event, eventType);
 
         if (this.sendPointerEvent(manipEvent)) {
             event.stopPropagation();
@@ -137,7 +152,7 @@ export default class ManipTarget
             return;
         }
 
-        const manipEvent = this.createManipPointerEvent(event, "up");
+        const manipEvent = this.createManipPointerEvent(event, EManipPointerEventType.Up);
         if (activePositions.length === 0) {
             this.activeType = "";
         }
@@ -151,7 +166,7 @@ export default class ManipTarget
     onDoubleClick(event: MouseEvent)
     {
         const consumed = this.sendTriggerEvent(
-            this.createManipTriggerEvent(event, "dblclick")
+            this.createManipTriggerEvent(event, EManipTriggerEventType.DblClick)
         );
 
         if (consumed) {
@@ -162,7 +177,7 @@ export default class ManipTarget
     onContextMenu(event: MouseEvent)
     {
         this.sendTriggerEvent(
-            this.createManipTriggerEvent(event, "contextmenu")
+            this.createManipTriggerEvent(event, EManipTriggerEventType.ContextMenu)
         );
 
         // prevent default context menu regardless of whether event was consumed or not
@@ -172,7 +187,7 @@ export default class ManipTarget
     onWheel(event: WheelEvent)
     {
         const consumed = this.sendTriggerEvent(
-            this.createManipTriggerEvent(event, "wheel")
+            this.createManipTriggerEvent(event, EManipTriggerEventType.Wheel)
         );
 
         if (consumed) {
@@ -180,11 +195,13 @@ export default class ManipTarget
         }
     }
 
-    protected createManipPointerEvent(event: PointerEvent, type: ManipPointerEventType): IManipPointerEvent
+    protected createManipPointerEvent(event: PointerEvent, type: EManipPointerEventType): IManipPointerEvent
     {
         // calculate center and movement
         let centerX = 0;
         let centerY = 0;
+        let localX = 0;
+        let localY = 0;
         let movementX = 0;
         let movementY = 0;
 
@@ -200,7 +217,7 @@ export default class ManipTarget
             centerX /= count;
             centerY /= count;
 
-            if (type === "move") {
+            if (type === EManipPointerEventType.Move || type === EManipPointerEventType.Hover) {
                 movementX = centerX - this.centerX;
                 movementY = centerY - this.centerY;
             }
@@ -213,10 +230,16 @@ export default class ManipTarget
             centerY = this.centerY;
         }
 
+        const element = event.currentTarget;
+        if (element instanceof Element) {
+            localX = event.clientX - element.clientLeft;
+            localY = event.clientY - element.clientTop;
+        }
+
         return {
             originalEvent: event,
             type: type,
-            source: event.pointerType as ManipPointerEventSource,
+            source: _pointerTypeToSource[event.pointerType],
 
             isPrimary: event.isPrimary,
             activePositions: positions,
@@ -224,6 +247,8 @@ export default class ManipTarget
 
             centerX,
             centerY,
+            localX,
+            localY,
             movementX,
             movementY,
 
@@ -234,12 +259,21 @@ export default class ManipTarget
         };
     }
 
-    protected createManipTriggerEvent(event: MouseEvent, type: ManipTriggerEventType): IManipTriggerEvent
+    protected createManipTriggerEvent(event: MouseEvent, type: EManipTriggerEventType): IManipTriggerEvent
     {
         let wheel = 0;
 
-        if (type === "wheel") {
+        if (type === EManipTriggerEventType.Wheel) {
             wheel = (event as WheelEvent).deltaY;
+        }
+
+        let localX = 0;
+        let localY = 0;
+
+        const element = event.currentTarget;
+        if (element instanceof Element) {
+            localX = event.clientX - element.clientLeft;
+            localY = event.clientY - element.clientTop;
         }
 
         return {
@@ -250,6 +284,8 @@ export default class ManipTarget
 
             centerX: event.clientX,
             centerY: event.clientY,
+            localX,
+            localY,
 
             shiftKey: event.shiftKey,
             ctrlKey: event.ctrlKey,
@@ -260,11 +296,11 @@ export default class ManipTarget
 
     protected sendPointerEvent(event: IManipPointerEvent): boolean
     {
-        return this.onPointer && this.onPointer(event);
+        return this.next && this.next.onPointer(event);
     }
 
     protected sendTriggerEvent(event: IManipTriggerEvent): boolean
     {
-        return this.onTrigger && this.onTrigger(event);
+        return this.next && this.next.onTrigger(event);
     }
 }
