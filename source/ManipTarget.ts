@@ -109,8 +109,9 @@ export default class ManipTarget
 
         if (this.sendPointerEvent(manipEvent)) {
             event.stopPropagation();
-            event.preventDefault();
         }
+
+        event.preventDefault();
     }
 
     onPointerMove(event: PointerEvent)
@@ -130,8 +131,9 @@ export default class ManipTarget
 
         if (this.sendPointerEvent(manipEvent)) {
             event.stopPropagation();
-            event.preventDefault();
         }
+
+        event.preventDefault();
     }
 
     onPointerUpOrCancel(event: PointerEvent)
@@ -159,8 +161,9 @@ export default class ManipTarget
 
         if (this.sendPointerEvent(manipEvent)) {
             event.stopPropagation();
-            event.preventDefault();
         }
+
+        event.preventDefault();
     }
 
     onDoubleClick(event: MouseEvent)
@@ -232,8 +235,9 @@ export default class ManipTarget
 
         const element = event.currentTarget;
         if (element instanceof Element) {
-            localX = event.clientX - element.clientLeft;
-            localY = event.clientY - element.clientTop;
+            const rect = element.getBoundingClientRect();
+            localX = event.clientX - rect.left;
+            localY = event.clientY - rect.top;
         }
 
         return {
