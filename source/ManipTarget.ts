@@ -150,7 +150,7 @@ export default class ManipTarget
         }
 
         if (!found) {
-            console.warn("orphan pointer up/cancel event #id", event.pointerId);
+            //console.warn("orphan pointer up/cancel event #id", event.pointerId);
             return;
         }
 
