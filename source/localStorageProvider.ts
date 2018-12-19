@@ -10,6 +10,9 @@ import IDataProvider, { IIdentifiable } from "./IDataProvider";
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @deprecated
+ */
 export class LocalStorageProvider implements IDataProvider
 {
     protected storage: Storage;
