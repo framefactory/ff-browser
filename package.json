@@ -1,5 +1,5 @@
 {
-  "name": "@ff/browser",
+  "name": "ff-browser",
   "version": "0.1.0",
   "description": "FF Browser Typescript Foundation Library",
   "scripts": {
