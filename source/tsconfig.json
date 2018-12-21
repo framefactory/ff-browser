@@ -7,6 +7,6 @@
         "sourceMap": true,
         "jsx": "react",
 
-        "outDir": "../node_modules/@ff/client"
+        "outDir": "../node_modules/@ff/browser"
     }
 }

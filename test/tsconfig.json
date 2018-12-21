@@ -6,10 +6,10 @@
         "sourceMap": true,
         "jsx": "react",
 
-        "outDir": "../node_modules/@ff/test/client",
+        "outDir": "../node_modules/@ff/test/browser",
         "baseUrl": ".",
         "paths": {
-            "@ff/client/*": [ "../source/*" ]
+            "@ff/browser/*": [ "../source/*" ]
         }
     },
     "references": [
