@@ -5,15 +5,11 @@
  * License: MIT
  */
 
-export enum EManipPointerEventType { Down, Hover, Move, Up }
-export enum EManipPointerEventSource { Mouse, Pen, Touch }
-export enum EManipTriggerEventType { Wheel, DblClick, ContextMenu }
+import { ITypedEvent } from "@ff/core/Publisher";
 
-const _pointerTypeToSource = {
-    "mouse": EManipPointerEventSource.Mouse,
-    "pen": EManipPointerEventSource.Pen,
-    "touch": EManipPointerEventSource.Touch
-};
+export type PointerEventType = "pointer-down" | "pointer-up" | "pointer-hover" | "pointer-move";
+export type TriggerEventType = "wheel" | "double-click" | "context-menu";
+export type PointerEventSource = "mouse" | "pen" | "touch";
 
 export interface IPointerPosition
 {
@@ -22,7 +18,7 @@ export interface IPointerPosition
     clientY: number;
 }
 
-export interface IManipBaseEvent
+export interface IBaseEvent
 {
     centerX: number;
     centerY: number;
@@ -35,11 +31,10 @@ export interface IManipBaseEvent
     metaKey: boolean;
 }
 
-export interface IManipPointerEvent extends IManipBaseEvent
+export interface IPointerEvent extends IBaseEvent, ITypedEvent<PointerEventType>
 {
     originalEvent: PointerEvent;
-    type: EManipPointerEventType;
-    source: EManipPointerEventSource;
+    source: PointerEventSource;
 
     isPrimary: boolean;
     activePositions: IPointerPosition[];
@@ -49,18 +44,17 @@ export interface IManipPointerEvent extends IManipBaseEvent
     movementY: number;
 }
 
-export interface IManipTriggerEvent extends IManipBaseEvent
+export interface ITriggerEvent extends IBaseEvent, ITypedEvent<TriggerEventType>
 {
     originalEvent: Event;
-    type: EManipTriggerEventType;
 
     wheel: number;
 }
 
 export interface IManip
 {
-    onPointer: (event: IManipPointerEvent) => boolean;
-    onTrigger: (event: IManipTriggerEvent) => boolean;
+    onPointer: (event: IPointerEvent) => boolean;
+    onTrigger: (event: ITriggerEvent) => boolean;
 }
 
 export default class ManipTarget
@@ -105,7 +99,7 @@ export default class ManipTarget
 
         (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
 
-        const manipEvent = this.createManipPointerEvent(event, EManipPointerEventType.Down);
+        const manipEvent = this.createManipPointerEvent(event, "pointer-down");
 
         if (this.sendPointerEvent(manipEvent)) {
             event.stopPropagation();
@@ -126,7 +120,7 @@ export default class ManipTarget
             }
         }
 
-        const eventType = activePositions.length ? EManipPointerEventType.Move : EManipPointerEventType.Hover;
+        const eventType = activePositions.length ? "pointer-move" : "pointer-hover";
         const manipEvent = this.createManipPointerEvent(event, eventType);
 
         if (this.sendPointerEvent(manipEvent)) {
@@ -154,7 +148,7 @@ export default class ManipTarget
             return;
         }
 
-        const manipEvent = this.createManipPointerEvent(event, EManipPointerEventType.Up);
+        const manipEvent = this.createManipPointerEvent(event, "pointer-up");
         if (activePositions.length === 0) {
             this.activeType = "";
         }
@@ -169,7 +163,7 @@ export default class ManipTarget
     onDoubleClick(event: MouseEvent)
     {
         const consumed = this.sendTriggerEvent(
-            this.createManipTriggerEvent(event, EManipTriggerEventType.DblClick)
+            this.createManipTriggerEvent(event, "double-click")
         );
 
         if (consumed) {
@@ -180,7 +174,7 @@ export default class ManipTarget
     onContextMenu(event: MouseEvent)
     {
         this.sendTriggerEvent(
-            this.createManipTriggerEvent(event, EManipTriggerEventType.ContextMenu)
+            this.createManipTriggerEvent(event, "context-menu")
         );
 
         // prevent default context menu regardless of whether event was consumed or not
@@ -190,7 +184,7 @@ export default class ManipTarget
     onWheel(event: WheelEvent)
     {
         const consumed = this.sendTriggerEvent(
-            this.createManipTriggerEvent(event, EManipTriggerEventType.Wheel)
+            this.createManipTriggerEvent(event, "wheel")
         );
 
         if (consumed) {
@@ -198,7 +192,7 @@ export default class ManipTarget
         }
     }
 
-    protected createManipPointerEvent(event: PointerEvent, type: EManipPointerEventType): IManipPointerEvent
+    protected createManipPointerEvent(event: PointerEvent, type: PointerEventType): IPointerEvent
     {
         // calculate center and movement
         let centerX = 0;
@@ -220,7 +214,7 @@ export default class ManipTarget
             centerX /= count;
             centerY /= count;
 
-            if (type === EManipPointerEventType.Move || type === EManipPointerEventType.Hover) {
+            if (type === "pointer-move" || type === "pointer-hover") {
                 movementX = centerX - this.centerX;
                 movementY = centerY - this.centerY;
             }
@@ -243,7 +237,7 @@ export default class ManipTarget
         return {
             originalEvent: event,
             type: type,
-            source: _pointerTypeToSource[event.pointerType],
+            source: event.pointerType as PointerEventSource,
 
             isPrimary: event.isPrimary,
             activePositions: positions,
@@ -263,11 +257,11 @@ export default class ManipTarget
         };
     }
 
-    protected createManipTriggerEvent(event: MouseEvent, type: EManipTriggerEventType): IManipTriggerEvent
+    protected createManipTriggerEvent(event: MouseEvent, type: TriggerEventType): ITriggerEvent
     {
         let wheel = 0;
 
-        if (type === EManipTriggerEventType.Wheel) {
+        if (type === "wheel") {
             wheel = (event as WheelEvent).deltaY;
         }
 
@@ -299,12 +293,12 @@ export default class ManipTarget
         }
     }
 
-    protected sendPointerEvent(event: IManipPointerEvent): boolean
+    protected sendPointerEvent(event: IPointerEvent): boolean
     {
         return this.next && this.next.onPointer(event);
     }
 
-    protected sendTriggerEvent(event: IManipTriggerEvent): boolean
+    protected sendTriggerEvent(event: ITriggerEvent): boolean
     {
         return this.next && this.next.onTrigger(event);
     }
