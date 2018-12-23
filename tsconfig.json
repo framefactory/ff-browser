@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "composite": true,
+        "target": "ES6",
+        "module": "commonjs",
+        "experimentalDecorators": true,
+
+        "baseUrl": "..",
+        "paths": {
+            "@ff/core/*": [ "./ff-core/source/*" ]
+        }
+    }
+}

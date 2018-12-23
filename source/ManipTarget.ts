@@ -276,8 +276,9 @@ export default class ManipTarget
 
         const element = event.currentTarget;
         if (element instanceof Element) {
-            localX = event.clientX - element.clientLeft;
-            localY = event.clientY - element.clientTop;
+            const rect = element.getBoundingClientRect();
+            localX = event.clientX - rect.left;
+            localY = event.clientY - rect.top;
         }
 
         return {
