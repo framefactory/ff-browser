@@ -56,8 +56,13 @@ export default {
             credentials: "include",
             body: file
 
+        }).then(result => {
+            if (!result.ok) {
+                throw new Error(`${result.status}`);
+            }
+            return result;
         }).catch(err => {
-            console.error(`fetch (${method} at ${url}) error: ${err}`);
+            console.error(`fetch (${method} at ${url}), error: ${err.message}`);
             throw err;
         });
     }
