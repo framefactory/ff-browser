@@ -7,6 +7,10 @@
 
 import { ITypedEvent } from "@ff/core/Publisher";
 
+////////////////////////////////////////////////////////////////////////////////
+
+const _DRAG_DISTANCE = 2;
+
 export type PointerEventType = "pointer-down" | "pointer-up" | "pointer-hover" | "pointer-move";
 export type TriggerEventType = "wheel" | "double-click" | "context-menu";
 export type PointerEventSource = "mouse" | "pen" | "touch";
@@ -37,6 +41,7 @@ export interface IPointerEvent extends IBaseEvent, ITypedEvent<PointerEventType>
     source: PointerEventSource;
 
     isPrimary: boolean;
+    isDragging: boolean;
     activePositions: IPointerPosition[];
     pointerCount: number;
 
@@ -59,13 +64,17 @@ export interface IManip
 
 export default class ManipTarget
 {
-    next: IManip;
+    next: IManip = null;
 
-    protected activePositions: IPointerPosition[];
-    protected activeType: string;
+    protected activePositions: IPointerPosition[] = [];
+    protected activeType: string = "";
 
-    protected centerX: number;
-    protected centerY: number;
+    protected centerX = 0;
+    protected centerY = 0;
+
+    protected startX = 0;
+    protected startY = 0;
+    protected isDragging = false;
 
     constructor()
     {
@@ -75,12 +84,6 @@ export default class ManipTarget
         this.onDoubleClick = this.onDoubleClick.bind(this);
         this.onContextMenu = this.onContextMenu.bind(this);
         this.onWheel = this.onWheel.bind(this);
-
-        this.next = null;
-        this.activePositions = [];
-        this.activeType = "";
-        this.centerX = 0;
-        this.centerY = 0;
     }
 
     onPointerDown(event: PointerEvent)
@@ -90,7 +93,14 @@ export default class ManipTarget
             return;
         }
 
+        if (this.activePositions.length === 0) {
+            this.startX = event.clientX;
+            this.startY = event.clientY;
+            this.isDragging = false;
+        }
+
         this.activeType = event.pointerType;
+
         this.activePositions.push({
             id: event.pointerId,
             clientX: event.clientX,
@@ -117,6 +127,13 @@ export default class ManipTarget
             if (event.pointerId === position.id) {
                 position.clientX = event.clientX;
                 position.clientY = event.clientY;
+            }
+        }
+
+        if (activePositions.length > 0 && !this.isDragging) {
+            const delta = Math.abs(event.clientX - this.startX) + Math.abs(event.clientY - this.startY);
+            if (delta > _DRAG_DISTANCE) {
+                this.isDragging = true;
             }
         }
 
@@ -240,6 +257,7 @@ export default class ManipTarget
             source: event.pointerType as PointerEventSource,
 
             isPrimary: event.isPrimary,
+            isDragging: this.isDragging,
             activePositions: positions,
             pointerCount: count,
 
