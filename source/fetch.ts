@@ -14,56 +14,57 @@ export default {
             data = JSON.stringify(data);
         }
 
-        let ok, status;
-
-        return fetch(url, {
+        const params: any = {
             headers: {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
             },
             method: method,
             credentials: "include",
-            body: data as string
+            body: data
+        };
 
-        }).then(result => {
+        return fetch(url, params).then(result => {
             if (!result.ok) {
-                console.warn(`fetch (${method} at ${url}) status ${result.status} ${result.statusText}`);
+                const message = `fetch.json (${method} at '${url}'), error: ${result.status} - ${result.statusText}`;
+                console.warn(message);
+                throw new Error(message);
             }
 
-            ok = result.ok;
-            status = result.status;
             return result.json();
 
-        }).then(json => {
-            if (json.error) {
-                console.warn(json.error);
-            }
-
-            return { ok, status, json };
-
-        }).catch(err => {
-            console.error(`fetch (${method} at ${url}) error: ${err}`);
-            throw err;
+        }).catch(error => {
+            console.warn(`fetch.json (${method} at '${url}'), error: ${error.message}`);
+            throw error;
         });
     },
 
-    file: async function(url: string, method: Method, file: File): Promise<any> {
-        return fetch(url, {
-            headers: {
-                "Content-Type": file.type
-            },
+    file: async function(url: string, method: Method, file: File, detectType: boolean = true): Promise<any> {
+
+        const params: any = {
             method,
             credentials: "include",
             body: file
+        };
 
-        }).then(result => {
+        if (!detectType) {
+            params.headers = {
+                "Content-Type": "application/octet-stream"
+            };
+        }
+
+        return fetch(url, params).then(result => {
             if (!result.ok) {
-                throw new Error(`${result.status}`);
+                const message = `fetch.file (${method} at '${url}'), error: ${result.status} - ${result.statusText}`;
+                console.warn(message);
+                throw new Error(message);
             }
+
             return result;
-        }).catch(err => {
-            console.error(`fetch (${method} at ${url}), error: ${err.message}`);
-            throw err;
+
+        }).catch(error => {
+            console.warn(`fetch.file (${method} at '${url}'), error: ${error.message}`);
+            throw error;
         });
     }
 };
