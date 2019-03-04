@@ -39,6 +39,33 @@ export default {
         });
     },
 
+    text: async function(url: string, method: Method, data?: string): Promise<string> {
+
+        const params: any = {
+            headers: {
+                "Accept": "text/plain",
+                "Content-Type": "text/plain",
+            },
+            method: method,
+            credentials: "include",
+            body: data
+        };
+
+        return fetch(url, params).then(result => {
+            if (!result.ok) {
+                const message = `fetch.text (${method} at '${url}'), error: ${result.status} - ${result.statusText}`;
+                console.warn(message);
+                throw new Error(message);
+            }
+
+            return result.text();
+
+        }).catch(error => {
+            console.warn(`fetch.text (${method} at '${url}'), error: ${error.message}`);
+            throw error;
+        });
+    },
+
     file: async function(url: string, method: Method, file: File, detectType: boolean = true): Promise<any> {
 
         const params: any = {
@@ -64,6 +91,33 @@ export default {
 
         }).catch(error => {
             console.warn(`fetch.file (${method} at '${url}'), error: ${error.message}`);
+            throw error;
+        });
+    },
+
+    buffer: async function(url: string, method: Method, buffer?: ArrayBuffer): Promise<ArrayBuffer> {
+
+        const params: any = {
+            headers: {
+                "Accept": "application/octet-stream",
+                "Content-Type": "application/octet-stream"
+            },
+            method,
+            credentials: "include",
+            body: buffer
+        };
+
+        return fetch(url, params).then(result => {
+            if (!result.ok) {
+                const message = `fetch.buffer (${method} at '${url}'), error: ${result.status} - ${result.statusText}`;
+                console.warn(message);
+                throw new Error(message);
+            }
+
+            return result.arrayBuffer();
+
+        }).catch(error => {
+            console.warn(`fetch.buffer (${method} at '${url}'), error: ${error.message}`);
             throw error;
         });
     }
