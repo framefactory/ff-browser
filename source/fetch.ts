@@ -20,7 +20,7 @@ export default {
                 "Content-Type": "application/json",
             },
             method: method,
-            credentials: "include",
+            credentials: "same-origin",
             body: data
         };
 
