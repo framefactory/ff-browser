@@ -53,9 +53,7 @@ export default {
 
         return fetch(url, params).then(result => {
             if (!result.ok) {
-                const message = `fetch.text (${method} at '${url}'), error: ${result.status} - ${result.statusText}`;
-                console.warn(message);
-                throw new Error(message);
+                throw new Error(`status: ${result.status}`);
             }
 
             return result.text();
@@ -82,9 +80,7 @@ export default {
 
         return fetch(url, params).then(result => {
             if (!result.ok) {
-                const message = `fetch.file (${method} at '${url}'), error: ${result.status} - ${result.statusText}`;
-                console.warn(message);
-                throw new Error(message);
+                throw new Error(`status: ${result.status}`);
             }
 
             return result;
@@ -109,9 +105,7 @@ export default {
 
         return fetch(url, params).then(result => {
             if (!result.ok) {
-                const message = `fetch.buffer (${method} at '${url}'), error: ${result.status} - ${result.statusText}`;
-                console.warn(message);
-                throw new Error(message);
+                throw new Error(`status: ${result.status}`);
             }
 
             return result.arrayBuffer();
