@@ -62,6 +62,12 @@ export interface IManip
     onTrigger: (event: ITriggerEvent) => boolean;
 }
 
+/**
+ * Composable class, listens for mouse and touch events on its target and converts
+ * them to [[IPointerEvent]] and [[ITriggerEvent]] events. [[IManip]] receivers of these events
+ * can be chained. Events are handed down the chain, starting with the [[IManip]] instance
+ * assigned to [[ManipTarget.next]].
+ */
 export default class ManipTarget
 {
     next: IManip = null;
@@ -76,7 +82,7 @@ export default class ManipTarget
     protected startY = 0;
     protected isDragging = false;
 
-    constructor()
+    constructor(target?: HTMLElement)
     {
         this.onPointerDown = this.onPointerDown.bind(this);
         this.onPointerMove = this.onPointerMove.bind(this);
@@ -84,6 +90,15 @@ export default class ManipTarget
         this.onDoubleClick = this.onDoubleClick.bind(this);
         this.onContextMenu = this.onContextMenu.bind(this);
         this.onWheel = this.onWheel.bind(this);
+
+        if (target) {
+            target.addEventListener("pointerdown", this.onPointerDown);
+            target.addEventListener("pointermove", this.onPointerMove);
+            target.addEventListener("pointerup", this.onPointerUpOrCancel);
+            target.addEventListener("pointercancel", this.onPointerUpOrCancel);
+            target.addEventListener("contextmenu", this.onContextMenu);
+            target.addEventListener("wheel", this.onWheel);
+        }
     }
 
     onPointerDown(event: PointerEvent)
