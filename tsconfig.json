@@ -6,8 +6,9 @@
         "experimentalDecorators": true,
         "sourceMap": true,
 
-        "outDir": "exports",
+        "outDir": "built/export",
         "rootDir": "source",
+
         "baseUrl": ".",
         "paths": {
             "@ff/core/*": [ "../ff-core/source/*" ]

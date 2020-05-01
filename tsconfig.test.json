@@ -6,13 +6,19 @@
         "experimentalDecorators": true,
         "sourceMap": true,
 
+        "outDir": "built/test",
         "rootDir": "test",
-        "outDir": "../../node_modules/@ff/test/browser"
+
+        "baseUrl": ".",
+        "paths": {
+            "@ff/browser/*": [ "source/*" ],
+            "@ff/core/*": [ "../ff-core/source/*" ]
+        }
     },
-    "references": [{
-        "path": "tsconfig.json"
-    }],
     "include": [
         "test/**/*"
-    ]
+    ],
+    "references": [{
+        "path": "tsconfig.json"
+    }]
 }
