@@ -6,7 +6,7 @@
  */
 
 export default {
-    dataURItoBlob: function(dataURI: string)
+    dataURItoBlob: function(dataURI: string): Blob
     {
         // extract the data part from the dataURI
         const byteString = atob(dataURI.split(',')[1]);
@@ -15,12 +15,12 @@ export default {
         const bytes = new Uint8Array(buffer);
 
         // set the bytes of the buffer to the correct values
-        for (var i = 0; i < byteString.length; i++) {
+        for (let i = 0; i < byteString.length; i++) {
             bytes[i] = byteString.charCodeAt(i);
         }
 
         // extract the type information from the dataURI
-        var mimeType = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        const mimeType = dataURI.split(',')[0].split(':')[1].split(';')[0];
 
         return new Blob([buffer], { type: mimeType });
     }

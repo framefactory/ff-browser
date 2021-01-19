@@ -15,48 +15,49 @@ export type PointerEventType = "pointer-down" | "pointer-up" | "pointer-hover" |
 export type TriggerEventType = "wheel" | "double-click" | "context-menu";
 export type PointerEventSource = "mouse" | "pen" | "touch";
 
-export interface IPointerPosition
+export interface IPointer
 {
     id: number;
-    clientX: number;
-    clientY: number;
+    offsetX: number;
+    offsetY: number;
 }
 
-export interface IBaseEvent
+export interface IManipEvent
 {
     centerX: number;
     centerY: number;
-    localX: number;
-    localY: number;
 
     shiftKey: boolean;
     ctrlKey: boolean;
     altKey: boolean;
     metaKey: boolean;
+
+    stopPropagation: boolean;
 }
 
-export interface IPointerEvent extends IBaseEvent, ITypedEvent<PointerEventType>
+export interface IPointerEvent extends IManipEvent, ITypedEvent<PointerEventType>
 {
     originalEvent: PointerEvent;
     source: PointerEventSource;
 
     isPrimary: boolean;
     isDragging: boolean;
-    activePositions: IPointerPosition[];
+
     pointerCount: number;
+    activePointers: IPointer[];
 
     movementX: number;
     movementY: number;
 }
 
-export interface ITriggerEvent extends IBaseEvent, ITypedEvent<TriggerEventType>
+export interface ITriggerEvent extends IManipEvent, ITypedEvent<TriggerEventType>
 {
     originalEvent: Event;
 
     wheel: number;
 }
 
-export interface IManip
+export interface IManipListener
 {
     onPointer: (event: IPointerEvent) => boolean;
     onTrigger: (event: ITriggerEvent) => boolean;
@@ -70,10 +71,10 @@ export interface IManip
  */
 export default class ManipTarget
 {
-    next: IManip = null;
+    listener: IManipListener = null;
 
-    protected activePositions: IPointerPosition[] = [];
-    protected activeType: string = "";
+    protected activePointers: IPointer[] = [];
+    protected activeType = "";
 
     protected centerX = 0;
     protected centerY = 0;
@@ -96,30 +97,31 @@ export default class ManipTarget
             target.addEventListener("pointermove", this.onPointerMove);
             target.addEventListener("pointerup", this.onPointerUpOrCancel);
             target.addEventListener("pointercancel", this.onPointerUpOrCancel);
+            target.addEventListener("doubleclick", this.onDoubleClick);
             target.addEventListener("contextmenu", this.onContextMenu);
             target.addEventListener("wheel", this.onWheel);
         }
     }
 
-    onPointerDown(event: PointerEvent)
+    onPointerDown(event: PointerEvent): void
     {
         // only events of a single pointer type can be handled at a time
         if (this.activeType && event.pointerType !== this.activeType) {
             return;
         }
 
-        if (this.activePositions.length === 0) {
-            this.startX = event.clientX;
-            this.startY = event.clientY;
+        if (this.activePointers.length === 0) {
+            this.startX = event.offsetX;
+            this.startY = event.offsetY;
             this.isDragging = false;
         }
 
         this.activeType = event.pointerType;
 
-        this.activePositions.push({
+        this.activePointers.push({
             id: event.pointerId,
-            clientX: event.clientX,
-            clientY: event.clientY
+            offsetX: event.offsetX,
+            offsetY: event.offsetY
         });
 
         (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
@@ -133,26 +135,26 @@ export default class ManipTarget
         event.preventDefault();
     }
 
-    onPointerMove(event: PointerEvent)
+    onPointerMove(event: PointerEvent): void
     {
-        const activePositions = this.activePositions;
+        const activePointers = this.activePointers;
 
-        for (let i = 0, n = activePositions.length; i < n; ++i) {
-            const position = activePositions[i];
-            if (event.pointerId === position.id) {
-                position.clientX = event.clientX;
-                position.clientY = event.clientY;
+        for (let i = 0, n = activePointers.length; i < n; ++i) {
+            const pointer = activePointers[i];
+            if (event.pointerId === pointer.id) {
+                pointer.offsetX = event.offsetX;
+                pointer.offsetY = event.offsetY;
             }
         }
 
-        if (activePositions.length > 0 && !this.isDragging) {
-            const delta = Math.abs(event.clientX - this.startX) + Math.abs(event.clientY - this.startY);
+        if (activePointers.length > 0 && !this.isDragging) {
+            const delta = Math.abs(event.offsetX - this.startX) + Math.abs(event.offsetY - this.startY);
             if (delta > _DRAG_DISTANCE) {
                 this.isDragging = true;
             }
         }
 
-        const eventType = activePositions.length ? "pointer-move" : "pointer-hover";
+        const eventType = activePointers.length ? "pointer-move" : "pointer-hover";
         const manipEvent = this.createManipPointerEvent(event, eventType);
 
         if (this.sendPointerEvent(manipEvent)) {
@@ -162,26 +164,26 @@ export default class ManipTarget
         event.preventDefault();
     }
 
-    onPointerUpOrCancel(event: PointerEvent)
+    onPointerUpOrCancel(event: PointerEvent): void
     {
-        const activePositions = this.activePositions;
+        const activePointers = this.activePointers;
         let found = false;
 
-        for (let i = 0, n = activePositions.length; i < n; ++i) {
-            if (event.pointerId === activePositions[i].id) {
-                activePositions.splice(i, 1);
+        for (let i = 0, n = activePointers.length; i < n; ++i) {
+            if (event.pointerId === activePointers[i].id) {
+                activePointers.splice(i, 1);
                 found = true;
                 break;
             }
         }
 
         if (!found) {
-            //console.warn("orphan pointer up/cancel event #id", event.pointerId);
+            console.warn("[ManipTarget.onPointerUpOrCancel] orphan pointer up/cancel event #id", event.pointerId);
             return;
         }
 
         const manipEvent = this.createManipPointerEvent(event, "pointer-up");
-        if (activePositions.length === 0) {
+        if (activePointers.length === 0) {
             this.activeType = "";
         }
 
@@ -192,7 +194,7 @@ export default class ManipTarget
         event.preventDefault();
     }
 
-    onDoubleClick(event: MouseEvent)
+    onDoubleClick(event: MouseEvent): void
     {
         const consumed = this.sendTriggerEvent(
             this.createManipTriggerEvent(event, "double-click")
@@ -203,7 +205,7 @@ export default class ManipTarget
         }
     }
 
-    onContextMenu(event: MouseEvent)
+    onContextMenu(event: MouseEvent): void
     {
         this.sendTriggerEvent(
             this.createManipTriggerEvent(event, "context-menu")
@@ -213,7 +215,7 @@ export default class ManipTarget
         event.preventDefault();
     }
 
-    onWheel(event: WheelEvent)
+    onWheel(event: WheelEvent): void
     {
         const consumed = this.sendTriggerEvent(
             this.createManipTriggerEvent(event, "wheel")
@@ -229,18 +231,16 @@ export default class ManipTarget
         // calculate center and movement
         let centerX = 0;
         let centerY = 0;
-        let localX = 0;
-        let localY = 0;
         let movementX = 0;
         let movementY = 0;
 
-        const positions = this.activePositions;
-        const count = positions.length;
+        const pointers = this.activePointers;
+        const count = pointers.length;
 
         if (count > 0) {
             for (let i = 0; i < count; ++i) {
-                centerX += positions[i].clientX;
-                centerY += positions[i].clientY;
+                centerX += pointers[i].offsetX;
+                centerY += pointers[i].offsetY;
             }
 
             centerX /= count;
@@ -259,13 +259,6 @@ export default class ManipTarget
             centerY = this.centerY;
         }
 
-        const element = event.currentTarget;
-        if (element instanceof Element) {
-            const rect = element.getBoundingClientRect();
-            localX = event.clientX - rect.left;
-            localY = event.clientY - rect.top;
-        }
-
         return {
             originalEvent: event,
             type: type,
@@ -273,20 +266,20 @@ export default class ManipTarget
 
             isPrimary: event.isPrimary,
             isDragging: this.isDragging,
-            activePositions: positions,
+            activePointers: pointers,
             pointerCount: count,
 
             centerX,
             centerY,
-            localX,
-            localY,
             movementX,
             movementY,
 
             shiftKey: event.shiftKey,
             ctrlKey: event.ctrlKey,
             altKey: event.altKey,
-            metaKey: event.metaKey
+            metaKey: event.metaKey,
+
+            stopPropagation: false,
         };
     }
 
@@ -298,41 +291,31 @@ export default class ManipTarget
             wheel = (event as WheelEvent).deltaY;
         }
 
-        let localX = 0;
-        let localY = 0;
-
-        const element = event.currentTarget;
-        if (element instanceof Element) {
-            const rect = element.getBoundingClientRect();
-            localX = event.clientX - rect.left;
-            localY = event.clientY - rect.top;
-        }
-
         return {
             originalEvent: event,
 
             type,
             wheel,
 
-            centerX: event.clientX,
-            centerY: event.clientY,
-            localX,
-            localY,
+            centerX: event.offsetX,
+            centerY: event.offsetY,
 
             shiftKey: event.shiftKey,
             ctrlKey: event.ctrlKey,
             altKey: event.altKey,
-            metaKey: event.metaKey
+            metaKey: event.metaKey,
+
+            stopPropagation: false,
         }
     }
 
     protected sendPointerEvent(event: IPointerEvent): boolean
     {
-        return this.next && this.next.onPointer(event);
+        return this.listener && this.listener.onPointer(event);
     }
 
     protected sendTriggerEvent(event: ITriggerEvent): boolean
     {
-        return this.next && this.next.onTrigger(event);
+        return this.listener && this.listener.onTrigger(event);
     }
 }
