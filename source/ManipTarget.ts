@@ -24,14 +24,20 @@ export interface IPointer
 
 export interface IManipEvent
 {
+    /** The x coordinate of the center of all active pointers. */
     centerX: number;
+    /** The y coordinate of the center of all active pointers. */
     centerY: number;
-
+    /** True if the shift modifier is active. */
     shiftKey: boolean;
+    /** True if the control modifier is active. */
     ctrlKey: boolean;
+    /** True if the alt modifier is active. */
     altKey: boolean;
+    /** True if the meta modifier is active. */
     metaKey: boolean;
 
+    /** Set this to true to stop the event from further propagating. */
     stopPropagation: boolean;
 }
 
@@ -41,6 +47,7 @@ export interface IPointerEvent extends IManipEvent, ITypedEvent<PointerEventType
     source: PointerEventSource;
 
     isPrimary: boolean;
+    isActive: boolean;
     isDragging: boolean;
 
     pointerCount: number;
@@ -255,8 +262,8 @@ export default class ManipTarget
             this.centerY = centerY;
         }
         else {
-            centerX = this.centerX;
-            centerY = this.centerY;
+            centerX = event.offsetX;
+            centerY = event.offsetY;
         }
 
         return {
@@ -265,6 +272,7 @@ export default class ManipTarget
             source: event.pointerType as PointerEventSource,
 
             isPrimary: event.isPrimary,
+            isActive: count > 0 || type === "pointer-up",
             isDragging: this.isDragging,
             activePointers: pointers,
             pointerCount: count,
