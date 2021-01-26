@@ -46,8 +46,8 @@ export interface IPointerEvent extends IManipEvent, ITypedEvent<PointerEventType
     originalEvent: PointerEvent;
     source: PointerEventSource;
 
+    primaryButton: number;
     isPrimary: boolean;
-    isActive: boolean;
     isDragging: boolean;
 
     pointerCount: number;
@@ -82,6 +82,7 @@ export default class ManipTarget
 
     protected activePointers: IPointer[] = [];
     protected activeType = "";
+    protected primaryButton = 0;
 
     protected centerX = 0;
     protected centerY = 0;
@@ -117,10 +118,11 @@ export default class ManipTarget
             return;
         }
 
-        if (this.activePointers.length === 0) {
+        if (event.isPrimary) {
             this.startX = event.offsetX;
             this.startY = event.offsetY;
             this.isDragging = false;
+            this.primaryButton = event.button || 0;
         }
 
         this.activeType = event.pointerType;
@@ -154,7 +156,7 @@ export default class ManipTarget
             }
         }
 
-        if (activePointers.length > 0 && !this.isDragging) {
+        if (event.isPrimary && activePointers.length > 0 && !this.isDragging) {
             const delta = Math.abs(event.offsetX - this.startX) + Math.abs(event.offsetY - this.startY);
             if (delta > _DRAG_DISTANCE) {
                 this.isDragging = true;
@@ -190,8 +192,13 @@ export default class ManipTarget
         }
 
         const manipEvent = this.createManipPointerEvent(event, "pointer-up");
+
         if (activePointers.length === 0) {
             this.activeType = "";
+        }
+        if (event.isPrimary) {
+            this.primaryButton = 0;
+            this.isDragging = false;
         }
 
         if (this.sendPointerEvent(manipEvent)) {
@@ -271,8 +278,8 @@ export default class ManipTarget
             type: type,
             source: event.pointerType as PointerEventSource,
 
+            primaryButton: this.primaryButton,
             isPrimary: event.isPrimary,
-            isActive: count > 0 || type === "pointer-up",
             isDragging: this.isDragging,
             activePointers: pointers,
             pointerCount: count,
