@@ -19,7 +19,7 @@ export class LocalStorageProvider implements IDataProvider
 
     constructor()
     {
-        this.storage = window ? window.localStorage : null;
+        this.storage = window ? window.localStorage : undefined;
     }
 
     async get(endpoint: string, id: string): Promise<IIdentifiable>
@@ -102,7 +102,7 @@ export class LocalStorageProvider implements IDataProvider
                 resolve();
             }
             else {
-                reject();
+                reject("local storage not available");
             }
         });
     }
@@ -112,7 +112,7 @@ export class LocalStorageProvider implements IDataProvider
         return uniqueId();
     }
 
-    protected getKey(endpoint: string, id: string)
+    protected getKey(endpoint: string, id: string): string
     {
         return endpoint + "/" + id;
     }

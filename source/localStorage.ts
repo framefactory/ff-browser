@@ -11,53 +11,67 @@ import uniqueId from "@ff/core/uniqueId";
 
 export class LocalStorage
 {
-    readonly store: Storage;
+    readonly storage: Storage;
 
     constructor()
     {
-        this.store = window ? window.localStorage : null;
+        this.storage = window ? window.localStorage : undefined;
     }
 
-    isReady()
+    isSupported(): boolean
     {
-        return !!this.store;
+        return !!this.storage;
     }
 
-    get(endpoint: string, id: string): any
+    get<T = any>(endpoint: string, id: string): T
     {
+        this.throwIfNotSupported();
+
         const key = this.getKey(endpoint, id);
 
-        const json = this.store.getItem(key);
+        const json = this.storage.getItem(key);
         if (!json) {
-            return null;
+            return undefined;
         }
 
         return JSON.parse(json);
     }
 
-    set(endpoint: string, id: string, obj: any): string
+    set<T = any>(endpoint: string,  obj: T, id: string): string
     {
-        id = id || obj.id || uniqueId();
+        this.throwIfNotSupported();
+
+        id = id || obj["id"] || uniqueId();
         const key = this.getKey(endpoint, id);
-        this.store.setItem(key, JSON.stringify(obj));
+        this.storage.setItem(key, JSON.stringify(obj));
+
         return id;
     }
 
     remove(endpoint: string, id: string): boolean
     {
+        this.throwIfNotSupported();
+
         const key = this.getKey(endpoint, id);
 
-        if (this.store.getItem(key)) {
-            this.store.removeItem(key);
+        if (this.storage.getItem(key)) {
+            this.storage.removeItem(key);
             return true;
         }
 
         return false;
     }
 
-    protected getKey(endpoint: string, id: string)
+    protected getKey(endpoint: string, id: string): string
     {
         return endpoint + "/" + id;
+    }
+
+    protected throwIfNotSupported(): void
+    {
+        if (!this.storage) {
+            throw new Error("local storage not supported");
+        }
     }
 }
 

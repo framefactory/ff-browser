@@ -12,7 +12,7 @@ import { ITypedEvent } from "@ff/core/Publisher";
 const _DRAG_DISTANCE = 2;
 
 export type PointerEventType = "pointer-down" | "pointer-up" | "pointer-hover" | "pointer-move";
-export type TriggerEventType = "wheel" | "double-click" | "context-menu";
+export type TriggerEventType = "wheel" | "double-click" | "context-menu" | "drag-enter" | "drag-over" | "drag-leave" | "drag-end" | "drop";
 export type PointerEventSource = "mouse" | "pen" | "touch";
 
 export interface IPointer
@@ -96,6 +96,13 @@ export default class ManipTarget
         this.onPointerDown = this.onPointerDown.bind(this);
         this.onPointerMove = this.onPointerMove.bind(this);
         this.onPointerUpOrCancel = this.onPointerUpOrCancel.bind(this);
+
+        this.onDragEnter = this.onDragEnter.bind(this);
+        this.onDragOver = this.onDragOver.bind(this);
+        this.onDragLeave = this.onDragLeave.bind(this);
+        this.onDragEnd = this.onDragEnd.bind(this);
+        this.onDrop = this.onDrop.bind(this);
+
         this.onDoubleClick = this.onDoubleClick.bind(this);
         this.onContextMenu = this.onContextMenu.bind(this);
         this.onWheel = this.onWheel.bind(this);
@@ -105,6 +112,11 @@ export default class ManipTarget
             target.addEventListener("pointermove", this.onPointerMove);
             target.addEventListener("pointerup", this.onPointerUpOrCancel);
             target.addEventListener("pointercancel", this.onPointerUpOrCancel);
+            target.addEventListener("dragenter", this.onDragEnter);
+            target.addEventListener("dragover", this.onDragOver);
+            target.addEventListener("dragleave", this.onDragLeave);
+            target.addEventListener("dragend", this.onDragEnd);
+            target.addEventListener("drop", this.onDrop);
             target.addEventListener("doubleclick", this.onDoubleClick);
             target.addEventListener("contextmenu", this.onContextMenu);
             target.addEventListener("wheel", this.onWheel);
@@ -206,6 +218,61 @@ export default class ManipTarget
         }
 
         event.preventDefault();
+    }
+    
+    onDragEnter(event: DragEvent): void
+    {
+        const consumed = this.sendTriggerEvent(
+            this.createManipTriggerEvent(event, "drag-enter")
+        );
+
+        if (consumed) {
+            event.preventDefault();
+        }
+    }
+
+    onDragOver(event: DragEvent): void
+    {
+        const consumed = this.sendTriggerEvent(
+            this.createManipTriggerEvent(event, "drag-over")
+        );
+
+        if (consumed) {
+            event.preventDefault();
+        }
+    }
+
+    onDragLeave(event: DragEvent): void
+    {
+        const consumed = this.sendTriggerEvent(
+            this.createManipTriggerEvent(event, "drag-leave")
+        );
+
+        if (consumed) {
+            event.preventDefault();
+        }
+    }
+
+    onDragEnd(event: DragEvent): void
+    {
+        const consumed = this.sendTriggerEvent(
+            this.createManipTriggerEvent(event, "drag-end")
+        );
+
+        if (consumed) {
+            event.preventDefault();
+        }
+    }
+
+    onDrop(event: DragEvent): void
+    {
+        const consumed = this.sendTriggerEvent(
+            this.createManipTriggerEvent(event, "drop")
+        );
+
+        if (consumed) {
+            event.preventDefault();
+        }
     }
 
     onDoubleClick(event: MouseEvent): void
