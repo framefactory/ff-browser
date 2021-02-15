@@ -22,8 +22,10 @@ export interface IPointer
     offsetY: number;
 }
 
-export interface IManipEvent
+export interface IManipEvent extends ITypedEvent<PointerEventType | TriggerEventType>
 {
+    originalEvent: Event;
+
     /** The x coordinate of the center of all active pointers. */
     centerX: number;
     /** The y coordinate of the center of all active pointers. */
@@ -41,8 +43,10 @@ export interface IManipEvent
     stopPropagation: boolean;
 }
 
-export interface IPointerEvent extends IManipEvent, ITypedEvent<PointerEventType>
+export interface IPointerEvent extends IManipEvent
 {
+    type: PointerEventType;
+
     originalEvent: PointerEvent;
     source: PointerEventSource;
 
@@ -57,9 +61,9 @@ export interface IPointerEvent extends IManipEvent, ITypedEvent<PointerEventType
     movementY: number;
 }
 
-export interface ITriggerEvent extends IManipEvent, ITypedEvent<TriggerEventType>
+export interface ITriggerEvent extends IManipEvent
 {
-    originalEvent: Event;
+    type: TriggerEventType;
 
     wheel: number;
 }
