@@ -9,7 +9,8 @@
     ],
     "type": "commonjs",
     "exports": {
-        "./": "./dist/exports/"
+        "./cjs/": "./dist/exports/",
+        "./": "./src/"
     },
     "scripts": {
         "build": "tsc",
