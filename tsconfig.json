@@ -12,13 +12,13 @@
 
         "baseUrl": ".",
         "paths": {
-            "@ff/core/*": [ "../ff-core/src/*" ]
+            "@ff/core/*": [ "../core/src/*" ]
         }
     },
     "include": [
         "src/**/*"
     ],
     "references": [
-        { "path":  "../ff-core" }
+        { "path":  "../core" }
     ]
 }

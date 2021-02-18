@@ -12,7 +12,7 @@
         "baseUrl": ".",
         "paths": {
             "@ff/browser/*": [ "../src/*" ],
-            "@ff/core/*": [ "../../ff-core/src/*" ]
+            "@ff/core/*": [ "../../core/src/*" ]
         }
     },
     "include": [
@@ -20,6 +20,6 @@
     ],
     "references": [
         { "path": ".." },
-        { "path": "../../ff-core" }
+        { "path": "../../core" }
     ]
 }

@@ -10,7 +10,7 @@ import * as moduleAlias from "module-alias";
 
 moduleAlias.addAliases({
     "@ff/browser": path.resolve(__dirname, "../exports"),
-    "@ff/core": path.resolve(__dirname, "../../../ff-core/dist/exports"),
+    "@ff/core": path.resolve(__dirname, "../../../core/dist/exports"),
 });
 
 // define vars on node global object (usually done by Webpack)
