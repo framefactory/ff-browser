@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "CommonJS",
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "sourceMap": true,
+
+        "outDir": "../dist/test",
+        "rootDir": ".",
+
+        "baseUrl": ".",
+        "paths": {
+            "@ff/browser/*": [ "../src/*" ],
+            "@ff/core/*": [ "../../ff-core/src/*" ]
+        }
+    },
+    "include": [
+        "**/*"
+    ],
+    "references": [
+        { "path": ".." },
+        { "path": "../../ff-core" }
+    ]
+}

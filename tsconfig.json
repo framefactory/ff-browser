@@ -4,20 +4,21 @@
         "target": "ES6",
         "module": "CommonJS",
         "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
         "sourceMap": true,
 
-        "outDir": "built/export",
-        "rootDir": "source",
+        "outDir": "dist/exports",
+        "rootDir": "src",
 
         "baseUrl": ".",
         "paths": {
-            "@ff/core/*": [ "../ff-core/source/*" ]
+            "@ff/core/*": [ "../ff-core/src/*" ]
         }
     },
     "include": [
-        "source/**/*"
+        "src/**/*"
     ],
     "references": [
-        { "path":  "../ff-core/tsconfig.json" }
+        { "path":  "../ff-core" }
     ]
 }

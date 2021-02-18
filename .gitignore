@@ -2,7 +2,8 @@
 .idea/
 .vscode/
 node_modules/
-built/
+
+dist/
 doc/
 
 # FILES
