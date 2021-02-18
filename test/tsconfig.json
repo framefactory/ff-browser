@@ -3,7 +3,6 @@
         "target": "ES6",
         "module": "CommonJS",
         "experimentalDecorators": true,
-        "allowSyntheticDefaultImports": true,
         "sourceMap": true,
 
         "outDir": "../dist/test",
@@ -20,6 +19,5 @@
     ],
     "references": [
         { "path": ".." },
-        { "path": "../../core" }
     ]
 }
