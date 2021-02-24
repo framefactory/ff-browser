@@ -15,7 +15,7 @@ const _triggerDownload = function(data: Blob, fileName: string)
     const clickHandler = () => {
         setTimeout(() => {
             URL.revokeObjectURL(dataURL);
-            this.removeEventListener("click", clickHandler);
+            linkElement.removeEventListener("click", clickHandler);
           }, 150);
     };
 
@@ -42,7 +42,7 @@ export default {
      * @param json JSON data to include.
      * @param fileName name of the downloadable file.
      */
-    json: function(json: Record<string, unknown> | string, fileName: string): void {
+    json: function(json: object | string, fileName: string): void {
 
         if (typeof json === "object") {
             json = JSON.stringify(json);
