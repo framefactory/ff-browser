@@ -10,12 +10,15 @@
 export default class DragTarget
 {
     isEnabled = true;
+    dragEnabled = true;
 
     onDragStart: (event: PointerEvent) => void = null;
     onDragMove: (event: PointerEvent, dx: number, dy: number) => void = null;
     onDragEnd: (event: PointerEvent) => void = null;
+    onClick: (event: PointerEvent) => void = null;
 
     private _element: HTMLElement = null;
+    private _isActive = false;
     private _isDragging = false;
 
     private _startX = 0;
@@ -23,12 +26,16 @@ export default class DragTarget
 
     private _lastX = 0;
     private _lastY = 0;
+    
+    private _minDragDistance;
 
-    constructor()
+    constructor(minDragDistance = 0)
     {
         this.onPointerDown = this.onPointerDown.bind(this);
         this.onPointerMove = this.onPointerMove.bind(this);
         this.onPointerUp = this.onPointerUp.bind(this);
+        
+        this._minDragDistance = minDragDistance;
     }
 
     get isDragging(): boolean {
@@ -73,14 +80,13 @@ export default class DragTarget
 
     protected onPointerDown(event: PointerEvent): void
     {
-        if (event.isPrimary && this.isEnabled) {
-            this._isDragging = true;
 
+        if (event.isPrimary && this.isEnabled) {
             this._startX = this._lastX = event.clientX;
             this._startY = this._lastY = event.clientY;
 
             this._element.setPointerCapture(event.pointerId);
-            this.onDragStart && this.onDragStart(event);
+            this._isActive = true;
         }
 
         event.stopPropagation();
@@ -89,15 +95,27 @@ export default class DragTarget
 
     protected onPointerMove(event: PointerEvent): void
     {
-        if (event.isPrimary && this._isDragging) {
-
+        if (this.isEnabled && event.isPrimary && this._isActive && this.dragEnabled) {
             const dx = event.clientX - this._lastX;
             const dy = event.clientY - this._lastY;
 
-            this.onDragMove && this.onDragMove(event, dx, dy);
+            if (!this._isDragging) {
+                const dist = Math.abs(dx) + Math.abs(dy);
 
-            this._lastX = event.clientX;
-            this._lastY = event.clientY;
+                if (dist >= this._minDragDistance) {
+                    this._isDragging = true;
+                    this.onDragStart && this.onDragStart(event);                
+
+                    this._lastX = event.clientX;
+                    this._lastY = event.clientY;
+                    }
+            }
+            else {
+                this.onDragMove && this.onDragMove(event, dx, dy);
+
+                this._lastX = event.clientX;
+                this._lastY = event.clientY;
+            }
         }
 
         event.stopPropagation();
@@ -106,10 +124,17 @@ export default class DragTarget
 
     protected onPointerUp(event: PointerEvent): void
     {
-        if (event.isPrimary && this._isDragging) {
-            this.onDragEnd && this.onDragEnd(event);
+        if (event.isPrimary && this._isActive) {
+            if (this._isDragging) {
+                this.onDragEnd && this.onDragEnd(event);
+                this._isDragging = false;
+            }
+            else {
+                this.onClick && this.onClick(event);
+            }
+
             this._element.releasePointerCapture(event.pointerId);
-            this._isDragging = false;
+            this._isActive = false;
         }
 
         event.stopPropagation();
