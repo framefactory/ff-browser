@@ -95,7 +95,10 @@ export default class ManipTarget
     protected startY = 0;
     protected isDragging = false;
 
-    constructor(target?: HTMLElement)
+    private _element: HTMLElement = null;
+
+
+    constructor(targetElement?: HTMLElement)
     {
         this.onPointerDown = this.onPointerDown.bind(this);
         this.onPointerMove = this.onPointerMove.bind(this);
@@ -111,19 +114,45 @@ export default class ManipTarget
         this.onContextMenu = this.onContextMenu.bind(this);
         this.onWheel = this.onWheel.bind(this);
 
-        if (target) {
-            target.addEventListener("pointerdown", this.onPointerDown);
-            target.addEventListener("pointermove", this.onPointerMove);
-            target.addEventListener("pointerup", this.onPointerUpOrCancel);
-            target.addEventListener("pointercancel", this.onPointerUpOrCancel);
-            target.addEventListener("dragenter", this.onDragEnter);
-            target.addEventListener("dragover", this.onDragOver);
-            target.addEventListener("dragleave", this.onDragLeave);
-            target.addEventListener("dragend", this.onDragEnd);
-            target.addEventListener("drop", this.onDrop);
-            target.addEventListener("doubleclick", this.onDoubleClick);
-            target.addEventListener("contextmenu", this.onContextMenu);
-            target.addEventListener("wheel", this.onWheel);
+        this.element = targetElement;
+    }
+
+    get element(): HTMLElement {
+        return this._element;
+    }
+
+    set element(targetElement: HTMLElement) {
+        const thisElement = this._element;
+        if (thisElement) {
+            thisElement.removeEventListener("pointerdown", this.onPointerDown);
+            thisElement.removeEventListener("pointermove", this.onPointerMove);
+            thisElement.removeEventListener("pointerup", this.onPointerUpOrCancel);
+            thisElement.removeEventListener("pointercancel", this.onPointerUpOrCancel);
+            thisElement.removeEventListener("dragenter", this.onDragEnter);
+            thisElement.removeEventListener("dragover", this.onDragOver);
+            thisElement.removeEventListener("dragleave", this.onDragLeave);
+            thisElement.removeEventListener("dragend", this.onDragEnd);
+            thisElement.removeEventListener("drop", this.onDrop);
+            thisElement.removeEventListener("doubleclick", this.onDoubleClick);
+            thisElement.removeEventListener("contextmenu", this.onContextMenu);
+            thisElement.removeEventListener("wheel", this.onWheel);
+        }
+
+        this._element = targetElement;
+
+        if (targetElement) {
+            targetElement.addEventListener("pointerdown", this.onPointerDown);
+            targetElement.addEventListener("pointermove", this.onPointerMove);
+            targetElement.addEventListener("pointerup", this.onPointerUpOrCancel);
+            targetElement.addEventListener("pointercancel", this.onPointerUpOrCancel);
+            targetElement.addEventListener("dragenter", this.onDragEnter);
+            targetElement.addEventListener("dragover", this.onDragOver);
+            targetElement.addEventListener("dragleave", this.onDragLeave);
+            targetElement.addEventListener("dragend", this.onDragEnd);
+            targetElement.addEventListener("drop", this.onDrop);
+            targetElement.addEventListener("doubleclick", this.onDoubleClick);
+            targetElement.addEventListener("contextmenu", this.onContextMenu);
+            targetElement.addEventListener("wheel", this.onWheel);
         }
     }
 
