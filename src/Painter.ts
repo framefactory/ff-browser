@@ -18,7 +18,7 @@ export default class Painter implements IManipListener
     private _rootLayer: Layer = null;
     private _activeLayer: Layer = null;
     private _paintScheduled = false;
-    private _resizeObserver;
+    private _resizeObserver: ResizeObserver;
 
     constructor()
     {
@@ -42,7 +42,7 @@ export default class Painter implements IManipListener
         this._rootLayer = layer;
 
         if (layer) {
-            layer.on("paint", this.schedulePaint);
+            layer.on("paint", this.schedulePaint, this);
         }
 
         this.schedulePaint();
@@ -119,7 +119,7 @@ export default class Painter implements IManipListener
     {
         if (!this._paintScheduled) {
             this._paintScheduled = true;
-            window.requestAnimationFrame(() => this.doPaint);
+            window.requestAnimationFrame(this.doPaint);
         }
     }
 

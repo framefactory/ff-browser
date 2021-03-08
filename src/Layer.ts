@@ -14,6 +14,9 @@ import { IManipEvent, IPointerEvent, ITriggerEvent } from "./ManipTarget";
 
 ////////////////////////////////////////////////////////////////////////////////
 
+export { IManipEvent, IPointerEvent, ITriggerEvent };
+export type Context = CanvasRenderingContext2D;
+
 const _vec3 = new Vector3();
 
 export default class Layer extends Publisher
@@ -43,6 +46,10 @@ export default class Layer extends Publisher
     }
     set parent(parent: Layer) {
         const thisParent = this._parent;
+
+        if (parent === thisParent) {
+            return;
+        }
         
         if (thisParent) {
             const index = thisParent._children.indexOf(this);
@@ -137,7 +144,7 @@ export default class Layer extends Publisher
         }
     }
 
-    pick(event: IManipEvent, context: CanvasRenderingContext2D): Layer
+    pick(event: IManipEvent, context: Context): Layer
     {
         context.save();
         this._update(context);
@@ -160,7 +167,7 @@ export default class Layer extends Publisher
         return pickLayer;
     }
 
-    paint(context: CanvasRenderingContext2D): void
+    paint(context: Context): void
     {
         context.save();
         this._update(context);
@@ -169,7 +176,7 @@ export default class Layer extends Publisher
 
         const children = this._children;
         for (let i = 0, n = children.length; i < n; ++i) {
-            children[i].onPaint(context);
+            children[i].paint(context);
         }
 
         context.restore();
@@ -215,26 +222,26 @@ export default class Layer extends Publisher
         return false;
     }
 
-    protected onPick(event: IManipEvent, context: CanvasRenderingContext2D): boolean
+    protected onPick(event: IManipEvent, context: Context): boolean
     {
         event;
         context;
         return false;
     }
 
-    protected onUpdate(context: CanvasRenderingContext2D): void
+    protected onUpdate(context: Context): void
     {
         context;
         return;
     }
 
-    protected onPaint(context: CanvasRenderingContext2D): void
+    protected onPaint(context: Context): void
     {
         context;
         return;
     }
 
-    private _update(context: CanvasRenderingContext2D): void
+    private _update(context: Context): void
     {
         if (this._needsSort) {
             this._children.sort((a, b) => a._zIndex - b._zIndex);
