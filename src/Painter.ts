@@ -66,6 +66,11 @@ export default class Painter implements IManipListener
         }
     }
 
+    requestPaint(): void
+    {
+        this.schedulePaint();
+    }
+
     onPointer(event: IPointerEvent): boolean
     {
         const root = this._rootLayer;
@@ -125,10 +130,10 @@ export default class Painter implements IManipListener
 
     protected doPaint()
     {
+        this._paintScheduled = false;
+
         if (this._context && this._rootLayer) {
             this._rootLayer.paint(this._context);
         }
-
-        this._paintScheduled = false;
     }
 }
