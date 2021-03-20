@@ -81,7 +81,7 @@ export default class Painter implements IManipListener
         }
 
         if (event.type === "pointer-hover" || (event.isPrimary && event.type === "pointer-down")) {
-            this._activeLayer = root.pick(event, context) || root;
+            this._activeLayer = root.pick(event, context, false) || root;
         }
 
         let layer = this._activeLayer;
@@ -102,7 +102,7 @@ export default class Painter implements IManipListener
             return false;
         }
 
-        let layer = root.pick(event, context) || root;
+        let layer = root.pick(event, context, false) || root;
         while (layer && !event.stopPropagation) {
             layer.dispatchTriggerEvent(event);
             layer = layer.parent;
@@ -117,7 +117,9 @@ export default class Painter implements IManipListener
         this._canvas.width = entry.contentRect.width;
         this._canvas.height = entry.contentRect.height;
 
-        this.schedulePaint();
+        if (this._context && this._rootLayer) {
+            this._rootLayer.requestUpdate();
+        }
     }
 
     protected schedulePaint()
@@ -133,7 +135,7 @@ export default class Painter implements IManipListener
         this._paintScheduled = false;
 
         if (this._context && this._rootLayer) {
-            this._rootLayer.paint(this._context);
+            this._rootLayer.paint(this._context, false);
         }
     }
 }

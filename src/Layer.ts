@@ -63,6 +63,7 @@ export default class Layer extends Publisher
         if (parent) {
             parent._children.push(this);
             parent._needsSort = true;
+            this._needsUpdate = true;
         }
     }
 
@@ -144,16 +145,16 @@ export default class Layer extends Publisher
         }
     }
 
-    pick(event: IManipEvent, context: Context): Layer
+    pick(event: IManipEvent, context: Context, parentUpdated: boolean): Layer
     {
         context.save();
-        this._update(context);
+        const childrenNeedUpdate = this._update(context, parentUpdated);
 
         let pickLayer = null;
 
         const children = this._children;
         for (let i = children.length - 1; i >= 0; --i) {
-            pickLayer = children[i].pick(event, context);
+            pickLayer = children[i].pick(event, context, childrenNeedUpdate);
             if (pickLayer) {
                 break;
             }
@@ -167,16 +168,16 @@ export default class Layer extends Publisher
         return pickLayer;
     }
 
-    paint(context: Context): void
+    paint(context: Context, parentUpdated: boolean): void
     {
         context.save();
-        this._update(context);
+        const childrenNeedUpdate = this._update(context, parentUpdated);
 
         this.onPaint(context);
 
         const children = this._children;
         for (let i = 0, n = children.length; i < n; ++i) {
-            children[i].paint(context);
+            children[i].paint(context, childrenNeedUpdate);
         }
 
         context.restore();
@@ -241,7 +242,7 @@ export default class Layer extends Publisher
         return;
     }
 
-    private _update(context: Context): void
+    private _update(context: Context, parentUpdated: boolean): boolean
     {
         if (this._needsSort) {
             this._children.sort((a, b) => a._zIndex - b._zIndex);
@@ -256,12 +257,14 @@ export default class Layer extends Publisher
         const e = this._localTransform.elements;
         context.transform(e[0], e[1], e[3], e[4], e[6], e[7]);
 
-        if (this._needsUpdate) {
+        if (this._needsUpdate || parentUpdated) {
             const t = context.getTransform();
             this._globalTransform.set(t.a, t.b, 0, t.c, t.d, 0, t.e, t.f, 1);
             this._globalTransformInverse.copy(this._globalTransform).invert();
         }
 
+        const childrenNeedUpdate = this._needsUpdate || parentUpdated;
         this._needsUpdate = false;
+        return childrenNeedUpdate;
     }
 }

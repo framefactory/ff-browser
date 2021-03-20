@@ -22,7 +22,7 @@ export default class Background extends Layer
         this.requestUpdate();
     }
 
-    paint(context: Context)
+    protected onPaint(context: Context)
     {
         const { width, height } = context.canvas;
         const color = this._color;
