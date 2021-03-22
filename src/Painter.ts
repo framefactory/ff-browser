@@ -12,6 +12,8 @@ import Layer from "./Layer";
 
 export default class Painter implements IManipListener
 {
+    autoUpdate = true;
+
     private _canvas: HTMLCanvasElement = null;
     private _context: CanvasRenderingContext2D = null;
     private _manip = new ManipTarget();
@@ -71,6 +73,16 @@ export default class Painter implements IManipListener
         this.schedulePaint();
     }
 
+    paint(): void
+    {
+        if (!this.autoUpdate) {
+            this.doPaint();
+        }
+        else {
+            console.warn("[Painter.paint] auto update enabled, call has no effect");
+        }
+    }
+
     onPointer(event: IPointerEvent): boolean
     {
         const root = this._rootLayer;
@@ -124,7 +136,7 @@ export default class Painter implements IManipListener
 
     protected schedulePaint()
     {
-        if (!this._paintScheduled) {
+        if (this.autoUpdate && !this._paintScheduled) {
             this._paintScheduled = true;
             window.requestAnimationFrame(this.doPaint);
         }
