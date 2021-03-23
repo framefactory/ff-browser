@@ -135,13 +135,12 @@ export default class Pulse extends Publisher
 
         event.now = Date.now();
         const seconds = (event.now - this._start) * 0.001;
-        event.delta = event.seconds - seconds;
+        event.delta = seconds - event.seconds;
         event.fps = event.delta > 0 ? 1 / event.delta : 0;
         event.averageDelta = this._getAverageDelta(event.delta);
         event.averageFps = event.averageDelta > 0 ? 1 / event.averageDelta : 0;
 
         event.frame++;
-        event.delta = seconds - event.seconds;
         event.seconds = seconds;
 
         this._handle = window.requestAnimationFrame(this._onAnimationFrame);
