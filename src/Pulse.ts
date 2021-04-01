@@ -84,7 +84,7 @@ export default class Pulse extends Publisher
     stop()
     {
         if (this._handle > 0) {
-            window.cancelAnimationFrame(this._handle);
+            cancelAnimationFrame(this._handle);
             this._handle = 0;
             this._stop = Date.now();
         }
@@ -143,7 +143,7 @@ export default class Pulse extends Publisher
         event.frame++;
         event.seconds = seconds;
 
-        this._handle = window.requestAnimationFrame(this._onAnimationFrame);
+        this._handle = requestAnimationFrame(this._onAnimationFrame);
         this.emit("pulse", event);
     }
 
