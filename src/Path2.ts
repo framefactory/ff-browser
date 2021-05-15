@@ -5,11 +5,11 @@
  * License: MIT
  */
 
-import Path2Base, { ESegmentType } from "@ff/core/Path2";
+import Path2Base, { ESegmentType, ISegment2 } from "@ff/core/Path2";
 
 ////////////////////////////////////////////////////////////////////////////////
 
-export { ESegmentType };
+export { ESegmentType, ISegment2 };
 
 export default class Path2 extends Path2Base
 {
