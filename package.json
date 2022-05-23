@@ -1,6 +1,6 @@
 {
     "name": "@framefactory/browser",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "FF Browser Typescript Foundation Library",
     "keywords": [
         "typescript",
