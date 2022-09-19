@@ -5,8 +5,8 @@
  * License: MIT
  */
 
-import uniqueId from "@ff/core/uniqueId";
-import IDataProvider, { IIdentifiable } from "./IDataProvider";
+import { uniqueId } from "@ff/core/uniqueId";
+import { IDataProvider, IIdentifiable } from "./IDataProvider.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -118,5 +118,4 @@ export class LocalStorageProvider implements IDataProvider
     }
 }
 
-const localStorageProvider = new LocalStorageProvider();
-export default localStorageProvider;
+export const localStorageProvider = new LocalStorageProvider();

@@ -26,29 +26,26 @@ const _triggerDownload = function(data: Blob, fileName: string)
     document.body.removeChild(linkElement);
 };
 
-export default {
-    /**
-     * Prompts the user to download the provided text content as a file.
-     * @param text text string to include.
-     * @param fileName name of the downloadable file.
-     */
-    text: function(text: string, fileName: string): void {
-
-        _triggerDownload(new Blob([text], { type: "text/plain" }), fileName);
-    },
-
-    /**
-     * Prompts the user to download the provided JSON content as a file.
-     * @param json JSON data to include.
-     * @param fileName name of the downloadable file.
-     */
-    json: function(json: object | string, fileName: string): void {
-
-        if (typeof json === "object") {
-            json = JSON.stringify(json);
-        }
-
-        _triggerDownload(new Blob([json], { type: "text/json" }), fileName);
-    },
+/**
+ * Prompts the user to download the provided text content as a file.
+ * @param text text string to include.
+ * @param fileName name of the downloadable file.
+ */
+export function downloadText(text: string, fileName: string): void
+{
+    _triggerDownload(new Blob([text], { type: "text/plain" }), fileName);
 }
 
+/**
+ * Prompts the user to download the provided JSON content as a file.
+ * @param json JSON data to include.
+ * @param fileName name of the downloadable file.
+ */
+export function downloadJson(json: object | string, fileName: string): void
+{
+    if (typeof json === "object") {
+        json = JSON.stringify(json);
+    }
+
+    _triggerDownload(new Blob([json], { type: "text/json" }), fileName);
+}

@@ -5,12 +5,12 @@
  * License: MIT
  */
 
-import Publisher from "@ff/core/Publisher";
-import Vector2 from "@ff/core/Vector2";
-import Vector3 from "@ff/core/Vector3";
-import Matrix3 from "@ff/core/Matrix3";
+import { Publisher } from "@ff/core/Publisher";
+import { Vector2 } from "@ff/core/Vector2";
+import { Vector3 } from "@ff/core/Vector3";
+import { Matrix3 } from "@ff/core/Matrix3";
 
-import { IManipEvent, IPointerEvent, ITriggerEvent } from "./ManipTarget";
+import { IManipEvent, IPointerEvent, ITriggerEvent } from "./ManipTarget.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -19,7 +19,7 @@ export type Context = CanvasRenderingContext2D;
 
 const _vec3 = new Vector3();
 
-export default class Layer extends Publisher
+export class Layer extends Publisher
 {
     private _children: Layer[] = [];
     private _parent: Layer = null;

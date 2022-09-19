@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-import Publisher from "@ff/core/Publisher";
+import { Publisher } from "@ff/core/Publisher";
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@ export interface IPulseState
     realtime: boolean;
 }
 
-export default class Pulse extends Publisher
+export class Pulse extends Publisher
 {
     private _event: IPulseState;
     private _handle = 0;

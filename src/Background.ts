@@ -5,12 +5,12 @@
  * License: MIT
  */
 
-import Color from "@ff/core/Color";
-import Layer, { Context } from "./Layer";
+import { Color } from "@ff/core/Color";
+import { Layer, Context } from "./Layer.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 
-export default class Background extends Layer
+export class Background extends Layer
 {
     private _color = new Color();
 

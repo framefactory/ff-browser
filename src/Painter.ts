@@ -5,8 +5,8 @@
  * License: MIT
  */
 
-import ManipTarget, { IManipListener, IPointerEvent, ITriggerEvent } from "./ManipTarget";
-import Layer from "./Layer";
+import { ManipTarget, IManipListener, IPointerEvent, ITriggerEvent } from "./ManipTarget.js";
+import { Layer } from "./Layer.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 

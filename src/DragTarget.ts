@@ -7,7 +7,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-export default class DragTarget
+export class DragTarget
 {
     isEnabled = true;
     dragEnabled = true;

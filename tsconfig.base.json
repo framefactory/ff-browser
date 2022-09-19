@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        //"strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "checkJs": true,
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "experimentalDecorators": true,
+
+        "baseUrl": ".",
+        "paths": {
+            "@ff/core/*": [ "../core/src/*" ]
+        }
+    }
+}

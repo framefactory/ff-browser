@@ -1,23 +1,22 @@
 {
+    "extends": "./tsconfig.base.json",
+
     "compilerOptions": {
-        "composite": true,
-        "target": "ES2020",
+        "target": "ES2022",
         "module": "CommonJS",
-        "experimentalDecorators": true,
-        "sourceMap": true,
+        "moduleResolution": "NodeNext",
+        "composite": true,
 
-        "outDir": "dist/exports",
-        "rootDir": "src",
-
-        "baseUrl": ".",
-        "paths": {
-            "@ff/core/*": [ "../core/src/*" ]
-        }
+        "declaration": true,
+        "declarationMap": true,
+        "declarationDir": "./build/types",
+        "outDir": "./build/cjs",
+        "rootDir": "./src"
     },
     "include": [
-        "src/**/*"
+        "./src/**/*"
     ],
     "references": [
-        { "path":  "../core" }
+        { "path": "../core" }
     ]
 }

@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-import uniqueId from "@ff/core/uniqueId";
+import { uniqueId } from "@ff/core/uniqueId";
 
 ////////////////////////////////////////////////////////////////////////////////
 

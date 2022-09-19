@@ -10,7 +10,7 @@ export interface IIdentifiable
     id: string;
 }
 
-export default interface IDataProvider
+export interface IDataProvider
 {
     /** Retrieve the object with the given id. Returns object or null if not found. */
     get: (endpoint: string, id: string) => Promise<IIdentifiable>;

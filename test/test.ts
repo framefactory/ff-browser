@@ -1,17 +1,11 @@
 /**
- * FF Typescript/React Foundation Library
+ * FF Typescript Foundation Library
  * Copyright 2022 Ralph Wiedemeier, Frame Factory GmbH
  *
  * License: MIT
  */
 
-import * as path from "path";
-import * as moduleAlias from "module-alias";
-
-moduleAlias.addAliases({
-    "@ff/browser": path.resolve(__dirname, "../exports"),
-    "@ff/core": path.resolve(__dirname, "../../../core/dist/exports"),
-});
+import "module-alias/register";
 
 // define vars on node global object (usually done by Webpack)
 global["ENV_DEVELOPMENT"] = false;

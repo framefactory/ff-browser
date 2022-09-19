@@ -80,7 +80,7 @@ export interface IManipListener
  * can be chained. Events are handed down the chain, starting with the [[IManip]] instance
  * assigned to [[ManipTarget.next]].
  */
-export default class ManipTarget
+export class ManipTarget
 {
     listener: IManipListener = null;
 

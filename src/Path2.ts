@@ -5,13 +5,13 @@
  * License: MIT
  */
 
-import Path2Base, { ESegmentType, ISegment2 } from "@ff/core/Path2";
+import { Path2 as Path2Base, ESegmentType, ISegment2 } from "@ff/core/Path2";
 
 ////////////////////////////////////////////////////////////////////////////////
 
 export { ESegmentType, ISegment2 };
 
-export default class Path2 extends Path2Base
+export class Path2 extends Path2Base
 {
     static fromSvgPathD(d: string): Path2
     {
