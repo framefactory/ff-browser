@@ -5,8 +5,6 @@
  * License: MIT
  */
 
-import "module-alias/register";
-
 // define vars on node global object (usually done by Webpack)
 global["ENV_DEVELOPMENT"] = false;
 global["ENV_PRODUCTION"] = true;

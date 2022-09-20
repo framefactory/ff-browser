@@ -1,6 +1,8 @@
 # FOLDERS
 .idea/
 .vscode/
+.cache/
+.pnpm-store/
 node_modules/
 
 build/

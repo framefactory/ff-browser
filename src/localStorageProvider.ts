@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-import { uniqueId } from "@ff/core/uniqueId";
+import { uniqueId } from "@ffweb/core/uniqueId.js";
 import { IDataProvider, IIdentifiable } from "./IDataProvider.js";
 
 ////////////////////////////////////////////////////////////////////////////////

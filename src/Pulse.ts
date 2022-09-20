@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-import { Publisher } from "@ff/core/Publisher";
+import { Publisher } from "@ffweb/core/Publisher.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 

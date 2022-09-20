@@ -5,10 +5,10 @@
  * License: MIT
  */
 
-import { Publisher } from "@ff/core/Publisher";
-import { Vector2 } from "@ff/core/Vector2";
-import { Vector3 } from "@ff/core/Vector3";
-import { Matrix3 } from "@ff/core/Matrix3";
+import { Publisher } from "@ffweb/core/Publisher.js";
+import { Vector2 } from "@ffweb/core/Vector2.js";
+import { Vector3 } from "@ffweb/core/Vector3.js";
+import { Matrix3 } from "@ffweb/core/Matrix3.js";
 
 import { IManipEvent, IPointerEvent, ITriggerEvent } from "./ManipTarget.js";
 

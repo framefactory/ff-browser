@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-import { Color } from "@ff/core/Color";
+import { Color } from "@ffweb/core/Color.js";
 import { Layer, Context } from "./Layer.js";
 
 ////////////////////////////////////////////////////////////////////////////////

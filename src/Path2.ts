@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-import { Path2 as Path2Base, ESegmentType, ISegment2 } from "@ff/core/Path2";
+import { Path2 as Path2Base, ESegmentType, ISegment2 } from "@ffweb/core/Path2.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 

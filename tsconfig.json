@@ -3,20 +3,20 @@
 
     "compilerOptions": {
         "target": "ES2022",
-        "module": "CommonJS",
+        "module": "ESNext",
         "moduleResolution": "NodeNext",
-        "composite": true,
 
+        "composite": true,
         "declaration": true,
         "declarationMap": true,
         "declarationDir": "./build/types",
-        "outDir": "./build/cjs",
+        "outDir": "./build/esm",
         "rootDir": "./src"
     },
     "include": [
         "./src/**/*"
     ],
     "references": [
-        { "path": "../core" }
+        { "path": "../core/tsconfig.json" }
     ]
 }

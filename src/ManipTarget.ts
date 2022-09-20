@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-import { ITypedEvent } from "@ff/core/Publisher";
+import { ITypedEvent } from "@ffweb/core/Publisher.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 
