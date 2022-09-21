@@ -11,7 +11,12 @@
         "declarationMap": true,
         "declarationDir": "./build/types",
         "outDir": "./build/cjs",
-        "rootDir": "./src"
+        "rootDir": "./src",
+
+        "baseUrl": "..",
+        "paths": {
+            "@ffweb/core/*": [ "core/src/*" ]
+        }
     },
     "include": [
         "./src/**/*"
