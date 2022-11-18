@@ -6,19 +6,24 @@
  */
 
 import { ManipTarget, IManipListener, IPointerEvent, ITriggerEvent } from "./ManipTarget.js";
-import { Layer } from "./Layer.js";
+import { PaintLayer } from "./PaintLayer.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 
-export default class Painter implements IManipListener
+/**
+ * 2D paint engine for layered drawing on a HTML canvas element. Supports
+ * deferred painting. Paint requests are consolidated and executed collectively
+ * during the next browser animation frame.
+ */
+export class Painter implements IManipListener
 {
     autoUpdate = true;
 
     private _canvas: HTMLCanvasElement = null;
     private _context: CanvasRenderingContext2D = null;
     private _manip = new ManipTarget();
-    private _rootLayer: Layer = null;
-    private _activeLayer: Layer = null;
+    private _rootLayer: PaintLayer = null;
+    private _activeLayer: PaintLayer = null;
     private _paintScheduled = false;
     private _resizeObserver: ResizeObserver;
 
@@ -32,11 +37,11 @@ export default class Painter implements IManipListener
         this._resizeObserver = new ResizeObserver(this.onResize);
     }
 
-    get rootLayer(): Layer {
+    get rootLayer(): PaintLayer {
         return this._rootLayer;
     }
 
-    set rootLayer(layer: Layer) {
+    set rootLayer(layer: PaintLayer) {
         if (this._rootLayer) {
             this._rootLayer.off("paint", this.schedulePaint, this);
         }
@@ -53,18 +58,18 @@ export default class Painter implements IManipListener
     get canvas(): HTMLCanvasElement {
         return this._canvas;
     }
-    set canvas(element: HTMLCanvasElement) {
+    set canvas(canvasElement: HTMLCanvasElement) {
         if (this._canvas) {
             this._resizeObserver.unobserve(this._canvas);
             this._context = null;
         }
 
-        this._canvas = element;
-        this._manip.element = element;
+        this._canvas = canvasElement;
+        this._manip.element = canvasElement;
 
-        if (element) {
-            this._context = element.getContext("2d");
-            this._resizeObserver.observe(element);
+        if (canvasElement) {
+            this._context = canvasElement.getContext("2d");
+            this._resizeObserver.observe(canvasElement);
         }
     }
 
@@ -125,12 +130,14 @@ export default class Painter implements IManipListener
 
     protected onResize(entries: ResizeObserverEntry[])
     {
+        const dpr = window.devicePixelRatio || 1;
         const entry = entries[0];
-        this._canvas.width = entry.contentRect.width;
-        this._canvas.height = entry.contentRect.height;
+
+        this._canvas.width = Math.round(entry.contentRect.width * dpr);
+        this._canvas.height = Math.round(entry.contentRect.height * dpr);
 
         if (this._context && this._rootLayer) {
-            this._rootLayer.requestUpdate();
+            this._rootLayer.paint(this._context, true);
         }
     }
 

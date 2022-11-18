@@ -6,10 +6,6 @@
  */
 
 import { Publisher } from "@ffweb/core/Publisher.js";
-import { Vector2 } from "@ffweb/core/Vector2.js";
-import { Vector3 } from "@ffweb/core/Vector3.js";
-import { Matrix3 } from "@ffweb/core/Matrix3.js";
-
 import { IManipEvent, IPointerEvent, ITriggerEvent } from "./ManipTarget.js";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,23 +13,21 @@ import { IManipEvent, IPointerEvent, ITriggerEvent } from "./ManipTarget.js";
 export { IManipEvent, IPointerEvent, ITriggerEvent };
 export type Context = CanvasRenderingContext2D;
 
-const _vec3 = new Vector3();
-
-export class Layer extends Publisher
+/**
+ * 2D paint layer.
+ */
+export class PaintLayer extends Publisher
 {
-    private _children: Layer[] = [];
-    private _parent: Layer = null;
+    private _children: PaintLayer[] = [];
+    private _parent: PaintLayer = null;
 
-    private _localTransform = new Matrix3();
-    private _globalTransform = new Matrix3();
-    private _globalTransformInverse = new Matrix3();
     private _zIndex = 0;
 
     private _needsUpdate = false;
     private _needsSort = false;
 
 
-    constructor(parent?: Layer)
+    constructor(parent?: PaintLayer)
     {
         super();
         this.addEvents("update", "paint", "pointer", "trigger");
@@ -41,10 +35,10 @@ export class Layer extends Publisher
         this.parent = parent;
     }
 
-    get parent(): Layer {
+    get parent(): PaintLayer {
         return this._parent;
     }
-    set parent(parent: Layer) {
+    set parent(parent: PaintLayer) {
         const thisParent = this._parent;
 
         if (parent === thisParent) {
@@ -67,7 +61,7 @@ export class Layer extends Publisher
         }
     }
 
-    get children(): Readonly<Layer[]> {
+    get children(): Readonly<PaintLayer[]> {
         return this._children;
     }
 
@@ -83,51 +77,9 @@ export class Layer extends Publisher
         }
     }
 
-    get localTransform(): Matrix3 {
-        return this._localTransform;
-    }
-    get globalTransform(): Readonly<Matrix3> {
-        return this._globalTransform;
-    }
-    get globalTransformInverse(): Readonly<Matrix3> {
-        return this._globalTransformInverse;
-    }
-
     dispose()
     {
         this.parent = null;    
-    }
-
-    globalPointToLocal(x: number, y: number): Vector2
-    {
-        _vec3.set(x, y, 1);
-        this.globalTransformInverse.multiplyVector(_vec3);
-
-        return _vec3.toVector2();
-    }
-
-    globalDirectionToLocal(x: number, y: number): Vector2
-    {
-        _vec3.set(x, y, 0);
-        this.globalTransformInverse.multiplyVector(_vec3);
-
-        return _vec3.toVector2();
-    }
-
-    eventPositionToLocal(event: IManipEvent): Vector2
-    {
-        _vec3.set(event.centerX, event.centerY, 1);
-        this.globalTransformInverse.multiplyVector(_vec3);
-
-        return _vec3.toVector2();
-    }
-
-    eventDeltaToLocal(event: IPointerEvent): Vector2
-    {
-        _vec3.set(event.movementX, event.movementY, 0);
-        this.globalTransformInverse.multiplyVector(_vec3);
-
-        return _vec3.toVector2();
     }
 
     requestUpdate(): void
@@ -145,10 +97,10 @@ export class Layer extends Publisher
         }
     }
 
-    pick(event: IManipEvent, context: Context, parentUpdated: boolean): Layer
+    pick(event: IManipEvent, context: Context, parentUpdated: boolean): PaintLayer
     {
         context.save();
-        const childrenNeedUpdate = this._update(context, parentUpdated);
+        const childrenNeedUpdate = this.update(context, parentUpdated);
 
         let pickLayer = null;
 
@@ -171,13 +123,13 @@ export class Layer extends Publisher
     paint(context: Context, parentUpdated: boolean): void
     {
         context.save();
-        const childrenNeedUpdate = this._update(context, parentUpdated);
+        const thisUpdated = this.update(context, parentUpdated);
 
         this.onPaint(context);
 
         const children = this._children;
         for (let i = 0, n = children.length; i < n; ++i) {
-            children[i].paint(context, childrenNeedUpdate);
+            children[i].paint(context, thisUpdated);
         }
 
         context.restore();
@@ -242,29 +194,21 @@ export class Layer extends Publisher
         return;
     }
 
-    private _update(context: Context, parentUpdated: boolean): boolean
+    protected update(context: Context, parentUpdated: boolean): boolean
     {
         if (this._needsSort) {
             this._children.sort((a, b) => a._zIndex - b._zIndex);
             this._needsSort = false;
         }
 
-        if (this._needsUpdate) {
+        const needsUpdate = parentUpdated || this._needsUpdate;
+
+        if (needsUpdate) {
             this.onUpdate(context);
             this.emit("update");
         }
 
-        const e = this._localTransform.elements;
-        context.transform(e[0], e[1], e[3], e[4], e[6], e[7]);
-
-        if (this._needsUpdate || parentUpdated) {
-            const t = context.getTransform();
-            this._globalTransform.set(t.a, t.b, 0, t.c, t.d, 0, t.e, t.f, 1);
-            this._globalTransformInverse.copy(this._globalTransform).invert();
-        }
-
-        const childrenNeedUpdate = this._needsUpdate || parentUpdated;
         this._needsUpdate = false;
-        return childrenNeedUpdate;
+        return needsUpdate;
     }
 }
