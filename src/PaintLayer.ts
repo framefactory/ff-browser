@@ -6,7 +6,7 @@
  */
 
 import { Publisher } from "@ffweb/core/Publisher.js";
-import { IManipEvent, IPointerEvent, ITriggerEvent } from "./ManipTarget.js";
+import { type IManipEvent, type IPointerEvent, type ITriggerEvent } from "./ManipTarget.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 

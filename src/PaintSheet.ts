@@ -10,12 +10,13 @@ import { Vector3 } from "@ffweb/core/Vector3.js";
 import { Matrix3 } from "@ffweb/core/Matrix3.js";
 
 import { IManipEvent, IPointerEvent } from "./ManipTarget.js";
-import { PaintLayer, Context } from "./PaintLayer.js";
+import { PaintLayer, type Context } from "./PaintLayer.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 
-export { Context };
+export { PaintLayer, Context };
 
+const _dpr = window.devicePixelRatio || 1;
 const _vec3 = new Vector3();
 
 /**
@@ -45,7 +46,7 @@ export class PaintSheet extends PaintLayer
 
     globalPointToLocal(x: number, y: number): Vector2
     {
-        _vec3.set(x, y, 1);
+        _vec3.set(x * _dpr, y * _dpr, 1);
         this.globalTransformInverse.transformVector(_vec3);
 
         return _vec3.toVector2();
@@ -53,7 +54,7 @@ export class PaintSheet extends PaintLayer
 
     globalDirectionToLocal(x: number, y: number): Vector2
     {
-        _vec3.set(x, y, 0);
+        _vec3.set(x * _dpr, y * _dpr, 0);
         this.globalTransformInverse.transformVector(_vec3);
 
         return _vec3.toVector2();
@@ -61,7 +62,7 @@ export class PaintSheet extends PaintLayer
 
     eventPositionToLocal(event: IManipEvent): Vector2
     {
-        _vec3.set(event.centerX, event.centerY, 1);
+        _vec3.set(event.centerX * _dpr, event.centerY * _dpr, 1);
         this.globalTransformInverse.transformVector(_vec3);
 
         return _vec3.toVector2();
@@ -69,7 +70,7 @@ export class PaintSheet extends PaintLayer
 
     eventDeltaToLocal(event: IPointerEvent): Vector2
     {
-        _vec3.set(event.movementX, event.movementY, 0);
+        _vec3.set(event.movementX * _dpr, event.movementY * _dpr, 0);
         this.globalTransformInverse.transformVector(_vec3);
 
         return _vec3.toVector2();

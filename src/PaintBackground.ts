@@ -6,13 +6,21 @@
  */
 
 import { Color } from "@ffweb/core/Color.js";
-import { Layer, Context } from "./Layer.js";
+import { PaintSheet, PaintLayer, Context } from "./PaintSheet.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 
-export class Background extends Layer
+const _dpr = window.devicePixelRatio || 1;
+
+export class PaintBackground extends PaintSheet
 {
     private _color = new Color();
+
+    constructor(parent?: PaintLayer)
+    {
+        super(parent);
+        this.localTransform.makeScale(_dpr, _dpr);
+    }
 
     get color(): Color {
         return this._color;
@@ -24,10 +32,9 @@ export class Background extends Layer
 
     protected onPaint(context: Context)
     {
-        const { width, height } = context.canvas;
+        const width = context.canvas.width / _dpr;
+        const height = context.canvas.height / _dpr;
         const color = this._color;
-
-        context.resetTransform();
 
         if (color.alpha < 1) {
             context.clearRect(0, 0, width, height);
