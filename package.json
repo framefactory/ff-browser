@@ -1,6 +1,6 @@
 {
   "name": "@ffweb/browser",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "license": "MIT",
   "description": "FF Browser Typescript Foundation Library",
   "keywords": [
@@ -22,7 +22,7 @@
     "url": "https://github.com/framefactory/ff-browser/issues"
   },
   "type": "module",
-  "packageManager": "pnpm@7.12.1",
+  "packageManager": "pnpm@8.4.0",
   "files": [
     "build/types/**/*",
     "build/esm/**/*",
@@ -47,10 +47,10 @@
     "@ffweb/core": "workspace:*"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.4",
-    "@types/mocha": "^9.1.1",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
     "chai": "^4.3.7",
-    "mocha": "^10.1.0",
-    "typescript": "^4.9.4"
+    "mocha": "^10.2.0",
+    "typescript": "^5.0.4"
   }
 }
