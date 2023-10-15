@@ -7,7 +7,7 @@
 
 type Method = "get" | "put" | "patch"| "post" | "delete" | "GET" | "PUT" | "PATCH" | "POST" | "DELETE";
 
-export async function fetchJsonon(url: string, method: Method, data?: string | {}): Promise<any>
+export async function fetchJson(url: string, method: Method, data?: string | {}): Promise<any>
 {
     if (data && typeof data !== "string") {
         data = JSON.stringify(data);
