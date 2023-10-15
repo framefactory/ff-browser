@@ -7,17 +7,15 @@
 
 export class HttpError extends Error
 {
-    code: number;
+    status: number;
+    statusText: string;
 
-    constructor(code: number, message: string)
+    constructor(status: number, statusText: string)
     {
-        super(message);
-        this.code = code;
-    }
+        super(`${status} ${statusText}`);
 
-    toString()
-    {
-        return `${this.code} ${this.message}`;
+        this.status = status;
+        this.statusText = statusText;
     }
 }
 
