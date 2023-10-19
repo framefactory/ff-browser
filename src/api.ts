@@ -5,41 +5,47 @@
  * License: MIT
  */
 
-export class HttpError extends Error
-{
-    status: number;
-    statusText: string;
-
-    constructor(status: number, statusText: string)
-    {
-        super(`${status} ${statusText}`);
-
-        this.status = status;
-        this.statusText = statusText;
-    }
+export type ApiError = {
+    message: string,
+    code: number,
+    type?: string,
 }
 
-export const apiGet = async function<R, P extends {} = {}>(endpoint: string, params?: P): Promise<R>
+export type ApiOkResponse<T> = {
+    ok: true;
+    data: T;
+};
+
+export type ApiErrorResponse = {
+    ok: false;
+    error: ApiError;
+}
+
+export type ApiResponse<T = never>
+    = ApiOkResponse<T> | ApiErrorResponse;
+
+
+export const apiGet = async function<R, P extends {} = {}>(endpoint: string, params?: P): Promise<ApiResponse<R>>
 {
     return apiCall("GET", endpoint, params);
 }
 
-export const apiPost = async function<R, P = any>(endpoint: string, params?: P): Promise<R>
+export const apiPost = async function<R, P = any>(endpoint: string, params?: P): Promise<ApiResponse<R>>
 {
     return apiCall("POST", endpoint, params);
 }
 
-export const apiPut = async function<R, P = any>(endpoint: string, params?: P): Promise<R>
+export const apiPut = async function<R, P = any>(endpoint: string, params?: P): Promise<ApiResponse<R>>
 {
     return apiCall("PUT", endpoint, params);
 }
 
-export const apiDelete = async function<R, P = any>(endpoint: string, params?: P): Promise<R>
+export const apiDelete = async function<R, P = any>(endpoint: string, params?: P): Promise<ApiResponse<R>>
 {
     return apiCall("DELETE", endpoint, params);
 }
 
-export const apiCall = async function<R, P = any>(method: string, endpoint: string, params?: P): Promise<R>
+export const apiCall = async function<R, P = any>(method: string, endpoint: string, params?: P): Promise<ApiResponse<R>>
 {
     method = method.toUpperCase();
     const url = new URL(endpoint, window.location.origin);
@@ -70,10 +76,32 @@ export const apiCall = async function<R, P = any>(method: string, endpoint: stri
     }
 
     const response = await fetch(url.toString(), init);
+    const text = await response.text();
 
-    if (!response.ok) {
-        throw new HttpError(response.status, response.statusText);
+    try {
+        const data = JSON.parse(text);
+
+        if (response.ok) {
+            return {
+                ok: true,
+                data,
+            } satisfies ApiOkResponse<R>;
+        }
+
+        return {
+            ok: false,
+            error: data,
+        } satisfies ApiErrorResponse;
+        
     }
-
-    return response.json();
+    catch (err) {
+        return {
+            ok: false,
+            error: {
+                message: "Invalid JSON: failed to parse response.",
+                code: response.status,
+                type: "format",
+            },
+        } satisfies ApiErrorResponse;
+    }
 }
