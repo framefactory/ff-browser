@@ -79,7 +79,7 @@ export const apiCall = async function<R, P = any>(method: string, endpoint: stri
     const text = await response.text();
 
     try {
-        const data = JSON.parse(text);
+        const data = text && text !== "OK" ? JSON.parse(text) : undefined;
 
         if (response.ok) {
             return {
