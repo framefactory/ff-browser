@@ -65,14 +65,17 @@ export const apiCall = async function<R, P = any>(method: string, endpoint: stri
     const init: RequestInit = {
         method,
         headers: {
-            "Content-Type": "application/json",
             "Accept": "application/json",
         },
         credentials: "same-origin",
     };
 
-    if (method !== "GET") {
+    if (method === "POST" && params instanceof FormData) {
+        init.body = params;
+    }
+    else if (method !== "GET") {
         init.body = JSON.stringify(params);
+        init.headers["Content-Type"] = "application/json";
     }
 
     const response = await fetch(url.toString(), init);
