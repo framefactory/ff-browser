@@ -81,21 +81,42 @@ export const apiCall = async function<R, P = any>(method: string, endpoint: stri
     const response = await fetch(url.toString(), init);
     const text = await response.text();
 
-    try {
-        const data = text && text !== "OK" ? JSON.parse(text) : undefined;
-
-        if (response.ok) {
-            return {
-                ok: true,
-                data,
-            } satisfies ApiOkResponse<R>;
+    if (response.ok === false) {
+        if (text) {
+            try {
+                const data = JSON.parse(text);
+                return {
+                    ok: false,
+                    error: data,
+                } satisfies ApiErrorResponse;
+            }
+            catch (err) { }    
         }
 
         return {
             ok: false,
-            error: data,
+            error: {
+                message: text || response.statusText,
+                code: response.status,
+                type: "http",
+            },
         } satisfies ApiErrorResponse;
-        
+    }
+
+    if (!text || text === "OK") {
+        return {
+            ok: true,
+            data: null,
+        } satisfies ApiOkResponse<R>;
+    }
+
+    try {
+        const data = JSON.parse(text)
+
+        return {
+            ok: true,
+            data,
+        } satisfies ApiOkResponse<R>;        
     }
     catch (err) {
         return {
