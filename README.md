@@ -1,3 +1,3 @@
 # FF Browser Typescript Foundation Library
 
-Copyright 2023 [Frame Factory GmbH](https://framefactory.ch), [Ralph Wiedemeier](https://about.me/ralphw)  
+Copyright 2024 [Frame Factory GmbH](https://framefactory.ch), [Ralph Wiedemeier](https://about.me/ralphw)  

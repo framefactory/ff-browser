@@ -1,6 +1,6 @@
 /**
  * WebGPU Lab
- * Copyright 2023 Ralph Wiedemeier, Frame Factory GmbH
+ * Copyright 2024 Ralph Wiedemeier, Frame Factory GmbH
  * 
  * License: MIT
  */
