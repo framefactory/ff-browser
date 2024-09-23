@@ -6,9 +6,9 @@
  */
 
 // define vars on node global object (usually done by Webpack)
-global["ENV_DEVELOPMENT"] = false;
-global["ENV_PRODUCTION"] = true;
-global["ENV_VERSION"] = "Test";
+// global["ENV_DEVELOPMENT"] = false;
+// global["ENV_PRODUCTION"] = true;
+// global["ENV_VERSION"] = "Test";
 
 ////////////////////////////////////////////////////////////////////////////////
 
