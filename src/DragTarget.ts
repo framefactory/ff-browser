@@ -7,19 +7,32 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+export interface IDragListener
+{
+    onDragStart?: (event: PointerEvent) => void;
+    onDragMove?: (event: PointerEvent, dx: number, dy: number) => void;
+    onDragEnd?: (event: PointerEvent) => void;
+    onClick?: (event: PointerEvent) => void;
+
+    onEnter?: (event: PointerEvent) => void;
+    onLeave?: (event: PointerEvent) => void;
+}
+
+/**
+ * Composable class, listens to pointer events on a bound HTML element
+ * and emits drag events when the pointer is moved while pressed down.
+ */
 export class DragTarget
 {
+    listener: IDragListener = null;
     isEnabled = true;
     dragEnabled = true;
 
-    onDragStart: (event: PointerEvent) => void = null;
-    onDragMove: (event: PointerEvent, dx: number, dy: number) => void = null;
-    onDragEnd: (event: PointerEvent) => void = null;
-    onClick: (event: PointerEvent) => void = null;
-
     private _element: HTMLElement = null;
+
     private _isActive = false;
     private _isDragging = false;
+    private _isOver = false;
 
     private _startX = 0;
     private _startY = 0;
@@ -29,17 +42,24 @@ export class DragTarget
     
     private _minDragDistance;
 
-    constructor(minDragDistance = 0)
+
+    constructor(targetElement?: HTMLElement, minDragDistance: number = 0)
     {
         this.onPointerDown = this.onPointerDown.bind(this);
         this.onPointerMove = this.onPointerMove.bind(this);
         this.onPointerUp = this.onPointerUp.bind(this);
+        this.onPointerEnter = this.onPointerEnter.bind(this);
+        this.onPointerLeave = this.onPointerLeave.bind(this);
         
         this._minDragDistance = minDragDistance;
+        this.element = targetElement;
     }
 
     get isDragging(): boolean {
         return this._isDragging;
+    }
+    get isOver(): boolean {
+        return this._isOver;
     }
     get startX(): number {
         return this._startX;
@@ -54,27 +74,29 @@ export class DragTarget
         return this._lastY;
     }
 
-    bind(element: HTMLElement): void
-    {
-        this.unbind();
-        this._element = element;
-
-        element.addEventListener("pointerdown", this.onPointerDown);
-        element.addEventListener("pointermove", this.onPointerMove);
-        element.addEventListener("pointerup", this.onPointerUp);
-        element.addEventListener("pointercancel", this.onPointerUp);
+    get element(): HTMLElement {
+        return this._element;
     }
+    set element(value: HTMLElement) {
+        const thisElement = this._element;
+        if (thisElement) {
+            thisElement.removeEventListener("pointerdown", this.onPointerDown);
+            thisElement.removeEventListener("pointermove", this.onPointerMove);
+            thisElement.removeEventListener("pointerup", this.onPointerUp);
+            thisElement.removeEventListener("pointercancel", this.onPointerUp);
+            thisElement.removeEventListener("pointerenter", this.onPointerEnter);
+            thisElement.removeEventListener("pointerleave", this.onPointerLeave);
+        }
 
-    unbind(): void
-    {
-        const element = this._element;
-        this._element = null;
-        
-        if (element) {
-            element.removeEventListener("pointerdown", this.onPointerDown);
-            element.removeEventListener("pointermove", this.onPointerMove);
-            element.removeEventListener("pointerup", this.onPointerUp);
-            element.removeEventListener("pointercancel", this.onPointerUp);
+        this._element = value;
+
+        if (value) {
+            value.addEventListener("pointerdown", this.onPointerDown);
+            value.addEventListener("pointermove", this.onPointerMove);
+            value.addEventListener("pointerup", this.onPointerUp);
+            value.addEventListener("pointercancel", this.onPointerUp);
+            value.addEventListener("pointerenter", this.onPointerEnter);
+            value.addEventListener("pointerleave", this.onPointerLeave);
         }
     }
 
@@ -104,14 +126,14 @@ export class DragTarget
 
                 if (dist >= this._minDragDistance) {
                     this._isDragging = true;
-                    this.onDragStart && this.onDragStart(event);                
+                    this.listener?.onDragStart?.(event);
 
                     this._lastX = event.clientX;
                     this._lastY = event.clientY;
                     }
             }
             else {
-                this.onDragMove && this.onDragMove(event, dx, dy);
+                this.listener?.onDragMove?.(event, dx, dy);
 
                 this._lastX = event.clientX;
                 this._lastY = event.clientY;
@@ -126,15 +148,37 @@ export class DragTarget
     {
         if (event.isPrimary && this._isActive) {
             if (this._isDragging) {
-                this.onDragEnd && this.onDragEnd(event);
+                this.listener?.onDragEnd?.(event);
                 this._isDragging = false;
             }
             else {
-                this.onClick && this.onClick(event);
+                this.listener?.onClick?.(event);
             }
 
             this._element.releasePointerCapture(event.pointerId);
             this._isActive = false;
+        }
+
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
+    protected onPointerEnter(event: PointerEvent): void
+    {
+        if (this.isEnabled && event.isPrimary && !this._isOver) {
+            this._isOver = true;
+            this.listener?.onEnter?.(event);
+        }
+
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
+    protected onPointerLeave(event: PointerEvent): void
+    {
+        if (this.isEnabled && event.isPrimary && this._isOver) {
+            this._isOver = false;
+            this.listener?.onLeave?.(event);
         }
 
         event.stopPropagation();
