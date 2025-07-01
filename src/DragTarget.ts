@@ -110,9 +110,6 @@ export class DragTarget
             this._element.setPointerCapture(event.pointerId);
             this._isActive = true;
         }
-
-        event.stopPropagation();
-        event.preventDefault();
     }
 
     protected onPointerMove(event: PointerEvent): void
@@ -139,9 +136,6 @@ export class DragTarget
                 this._lastY = event.clientY;
             }
         }
-
-        event.stopPropagation();
-        event.preventDefault();
     }
 
     protected onPointerUp(event: PointerEvent): void
@@ -158,9 +152,6 @@ export class DragTarget
             this._element.releasePointerCapture(event.pointerId);
             this._isActive = false;
         }
-
-        event.stopPropagation();
-        event.preventDefault();
     }
 
     protected onPointerEnter(event: PointerEvent): void
@@ -169,9 +160,6 @@ export class DragTarget
             this._isOver = true;
             this.listener?.onEnter?.(event);
         }
-
-        event.stopPropagation();
-        event.preventDefault();
     }
 
     protected onPointerLeave(event: PointerEvent): void
@@ -180,8 +168,5 @@ export class DragTarget
             this._isOver = false;
             this.listener?.onLeave?.(event);
         }
-
-        event.stopPropagation();
-        event.preventDefault();
-    }
+   }
 }
