@@ -13,9 +13,6 @@ export interface IDragListener
     onDragMove?: (event: PointerEvent, dx: number, dy: number) => void;
     onDragEnd?: (event: PointerEvent) => void;
     onClick?: (event: PointerEvent) => void;
-
-    onEnter?: (event: PointerEvent) => void;
-    onLeave?: (event: PointerEvent) => void;
 }
 
 /**
@@ -32,7 +29,6 @@ export class DragTarget
 
     private _isActive = false;
     private _isDragging = false;
-    private _isOver = false;
 
     private _startX = 0;
     private _startY = 0;
@@ -41,25 +37,23 @@ export class DragTarget
     private _lastY = 0;
     
     private _minDragDistance;
+    private _preventDefault;
 
 
-    constructor(targetElement?: HTMLElement, minDragDistance: number = 0)
+    constructor(targetElement?: HTMLElement, minDragDistance: number = 0, preventDefault: boolean = false)
     {
         this.onPointerDown = this.onPointerDown.bind(this);
         this.onPointerMove = this.onPointerMove.bind(this);
         this.onPointerUp = this.onPointerUp.bind(this);
-        this.onPointerEnter = this.onPointerEnter.bind(this);
-        this.onPointerLeave = this.onPointerLeave.bind(this);
         
         this._minDragDistance = minDragDistance;
+        this._preventDefault = preventDefault;
+
         this.element = targetElement;
     }
 
     get isDragging(): boolean {
         return this._isDragging;
-    }
-    get isOver(): boolean {
-        return this._isOver;
     }
     get startX(): number {
         return this._startX;
@@ -84,8 +78,6 @@ export class DragTarget
             thisElement.removeEventListener("pointermove", this.onPointerMove);
             thisElement.removeEventListener("pointerup", this.onPointerUp);
             thisElement.removeEventListener("pointercancel", this.onPointerUp);
-            thisElement.removeEventListener("pointerenter", this.onPointerEnter);
-            thisElement.removeEventListener("pointerleave", this.onPointerLeave);
         }
 
         this._element = value;
@@ -95,20 +87,24 @@ export class DragTarget
             value.addEventListener("pointermove", this.onPointerMove);
             value.addEventListener("pointerup", this.onPointerUp);
             value.addEventListener("pointercancel", this.onPointerUp);
-            value.addEventListener("pointerenter", this.onPointerEnter);
-            value.addEventListener("pointerleave", this.onPointerLeave);
         }
     }
 
     protected onPointerDown(event: PointerEvent): void
     {
-
         if (event.isPrimary && this.isEnabled) {
             this._startX = this._lastX = event.clientX;
             this._startY = this._lastY = event.clientY;
 
             this._element.setPointerCapture(event.pointerId);
             this._isActive = true;
+        }
+        else {
+            this.listener?.onClick?.(event);
+        }
+
+        if (this._preventDefault) {
+            event.preventDefault();
         }
     }
 
@@ -136,6 +132,10 @@ export class DragTarget
                 this._lastY = event.clientY;
             }
         }
+
+        if (this._preventDefault) {
+            event.preventDefault();
+        }
     }
 
     protected onPointerUp(event: PointerEvent): void
@@ -152,21 +152,9 @@ export class DragTarget
             this._element.releasePointerCapture(event.pointerId);
             this._isActive = false;
         }
-    }
 
-    protected onPointerEnter(event: PointerEvent): void
-    {
-        if (this.isEnabled && event.isPrimary && !this._isOver) {
-            this._isOver = true;
-            this.listener?.onEnter?.(event);
+        if (this._preventDefault) {
+            event.preventDefault();
         }
     }
-
-    protected onPointerLeave(event: PointerEvent): void
-    {
-        if (this.isEnabled && event.isPrimary && this._isOver) {
-            this._isOver = false;
-            this.listener?.onLeave?.(event);
-        }
-   }
 }
