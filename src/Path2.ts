@@ -9,7 +9,7 @@ import { Path2 as Path2Base, ESegmentType, ISegment2 } from "@ffweb/core/Path2.j
 
 ////////////////////////////////////////////////////////////////////////////////
 
-export { ESegmentType, ISegment2 };
+export { ESegmentType, type ISegment2 };
 
 export class Path2 extends Path2Base
 {
